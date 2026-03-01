@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoPro - Professional Crypto Trading Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #060B11;
+            --bg-secondary: #0D1421;
+            --bg-tertiary: #111927;
+            --bg-card: #151E2D;
+            --border-color: #1E2D42;
+            --text-primary: #E8EDF5;
+            --text-secondary: #6B7A99;
+            --text-muted: #3D4F6B;
+            --accent-green: #0ECB81;
+            --accent-green-dim: rgba(14,203,129,0.12);
+            --accent-red: #F6465D;
+            --accent-red-dim: rgba(246,70,93,0.12);
+            --accent-yellow: #FCD535;
+            --accent-blue: #00B8FF;
+            --accent-blue-dim: rgba(0,184,255,0.12);
+            --accent-purple: #A855F7;
+        }
+        body { font-family: 'Space Grotesk', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(14,203,129,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(14,203,129,0.025) 1px, transparent 1px); background-size: 44px 44px; pointer-events: none; z-index: 0; }
+        .layer { display: none; min-height: 100vh; position: relative; z-index: 1; animation: fadeUp 0.4s ease-out; }
+        .layer.active { display: block; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.7; transform:scale(1.08); } }
+        @keyframes slideLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity:0; } to { transform: translateY(0); opacity:1; } }
+        @keyframes slideInRight { from { transform: translateX(120%); opacity:0; } to { transform: translateX(0); opacity:1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity:1; } to { transform: translateX(120%); opacity:0; } }
+        @keyframes flashGreen { 0%,100% { color: var(--accent-green); } 50% { color: #fff; text-shadow: 0 0 20px var(--accent-green); } }
+        @keyframes flashRed { 0%,100% { color: var(--accent-red); } 50% { color: #fff; text-shadow: 0 0 20px var(--accent-red); } }
+        @keyframes glow { 0%,100% { box-shadow: 0 0 10px rgba(14,203,129,0.3); } 50% { box-shadow: 0 0 25px rgba(14,203,129,0.7); } }
+        @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity:1; } 100% { transform: translateY(100vh) rotate(720deg); opacity:0; } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+        @keyframes countUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        .market-ticker-bar { background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: 8px 0; overflow: hidden; position: sticky; top: 0; z-index: 1001; }
+        .ticker-track { display: flex; animation: slideLeft 50s linear infinite; white-space: nowrap; width: max-content; }
+        .ticker-item { display: inline-flex; align-items: center; gap: 8px; padding: 0 24px; font-family: 'JetBrains Mono', monospace; font-size: 12px; border-right: 1px solid var(--border-color); }
+        .ticker-symbol { color: var(--text-secondary); font-weight: 600; }
+        .ticker-price { color: var(--text-primary); font-weight: 700; }
+        .ticker-change.pos { color: var(--accent-green); }
+        .ticker-change.neg { color: var(--accent-red); }
+        .navbar { background: rgba(13,20,33,0.97); backdrop-filter: blur(20px); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 33px; z-index: 1000; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 900; color: var(--accent-green); cursor: pointer; letter-spacing: -0.5px; }
+        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent-green), #0B8F5F); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; animation: glow 3s ease-in-out infinite; }
+        .nav-links { display: flex; gap: 12px; align-items: center; }
+        .nav-btn { padding: 9px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; font-family: 'Space Grotesk', sans-serif; transition: all 0.25s; }
+        .btn-login { background: transparent; color: var(--accent-blue); border: 1.5px solid var(--accent-blue); }
+        .btn-signup { background: linear-gradient(135deg, var(--accent-green), #08A566); color: #000; font-weight: 700; }
+        .nav-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .status-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--accent-green-dim); border: 1px solid rgba(14,203,129,0.3); border-radius: 20px; font-size: 11px; font-weight: 700; color: var(--accent-green); letter-spacing: 1px; }
+        .status-dot { width: 6px; height: 6px; background: var(--accent-green); border-radius: 50%; animation: blink 1.5s ease-in-out infinite; }
+        .notif-bell { position: relative; cursor: pointer; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 10px; font-size: 18px; transition: all 0.25s; }
+        .notif-bell:hover { border-color: var(--accent-green); }
+        .notif-count { position: absolute; top: -4px; right: -4px; background: var(--accent-red); color: #fff; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .notif-dropdown { position: absolute; top: 50px; right: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; width: 320px; max-height: 420px; overflow-y: auto; z-index: 9999; display: none; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+        .notif-dropdown.open { display: block; animation: fadeUp 0.25s ease-out; }
+        .notif-header { padding: 16px 20px; font-weight: 700; font-size: 14px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg-card); }
+        .notif-item { padding: 14px 20px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background 0.2s; }
+        .notif-item:hover { background: var(--bg-tertiary); }
+        .notif-item-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+        .notif-item-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+        .notif-item-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .hero-section { background: linear-gradient(135deg, rgba(14,203,129,0.08) 0%, rgba(0,184,255,0.05) 100%); border: 1px solid rgba(14,203,129,0.2); border-radius: 20px; padding: 48px 40px; margin-bottom: 20px; text-align: center; position: relative; overflow: hidden; }
+        .hero-section::before { content: ''; position: absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(ellipse, rgba(14,203,129,0.1) 0%, transparent 70%); pointer-events: none; }
+        .hero-section h1 { font-size: 52px; font-weight: 900; background: linear-gradient(135deg, var(--accent-green) 0%, var(--accent-blue) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; letter-spacing: -1.5px; line-height: 1.1; }
+        .hero-section p { font-size: 17px; color: var(--text-secondary); margin-bottom: 28px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+        .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .hero-btn { padding: 16px 34px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.3s; letter-spacing: -0.3px; }
+        .hero-btn-primary { background: linear-gradient(135deg, var(--accent-green), #08A566); color: #000; }
+        .hero-btn-secondary { background: transparent; color: var(--accent-blue); border: 1.5px solid var(--accent-blue); }
+        .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(14,203,129,0.3); }
+        .bonus-countdown-bar { background: linear-gradient(135deg, rgba(252,213,53,0.1), rgba(252,213,53,0.04)); border: 1px solid rgba(252,213,53,0.3); border-radius: 14px; padding: 16px 24px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+        .bonus-countdown-text { font-size: 15px; font-weight: 700; color: var(--accent-yellow); }
+        .countdown-timer { display: flex; gap: 8px; align-items: center; }
+        .countdown-unit { background: rgba(0,0,0,0.4); border: 1px solid rgba(252,213,53,0.3); border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 54px; }
+        .countdown-num { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--accent-yellow); display: block; line-height: 1; }
+        .countdown-label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+        .countdown-colon { font-size: 22px; color: var(--accent-yellow); font-weight: 700; animation: blink 1s infinite; }
+        .viewing-count { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: var(--accent-red-dim); border: 1px solid rgba(246,70,93,0.2); border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--accent-red); }
+        .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent-green); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .live-traders-section { background: var(--bg-secondary); border-radius: 14px; padding: 18px 20px; margin-bottom: 20px; border: 1px solid var(--border-color); overflow: hidden; }
+        .ticker-wrapper { overflow: hidden; }
+        .ticker-content { display: flex; animation: slideLeft 80s linear infinite; white-space: nowrap; width: max-content; }
+        .trader-card { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--bg-card); border-radius: 10px; margin-right: 12px; border: 1px solid var(--border-color); min-width: 220px; }
+        .trader-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .trader-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+        .trader-profit { font-size: 14px; font-weight: 700; color: var(--accent-green); font-family: 'JetBrains Mono', monospace; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+        .stat-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, var(--accent-green-dim), transparent); opacity: 0; transition: opacity 0.3s; }
+        .stat-card:hover::before { opacity: 1; }
+        .stat-card:hover { border-color: var(--accent-green); transform: translateY(-4px); box-shadow: 0 8px 30px rgba(14,203,129,0.15); }
+        .stat-icon { font-size: 30px; margin-bottom: 10px; }
+        .stat-value { font-size: 28px; font-weight: 900; color: var(--accent-green); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; letter-spacing: -1px; animation: countUp 0.6s ease-out; }
+        .stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .winners-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 20px; }
+        .winner-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; transition: all 0.3s; position: relative; overflow: hidden; }
+        .winner-card:hover { border-color: var(--accent-green); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(14,203,129,0.15); }
+        .winner-rank { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-yellow), #f59e0b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 14px; }
+        .winner-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .winner-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue)); display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+        .winner-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+        .winner-location { font-size: 11px; color: var(--text-secondary); }
+        .winner-join { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+        .winner-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .winner-stat { background: var(--accent-green-dim); border: 1px solid rgba(14,203,129,0.15); padding: 10px; border-radius: 8px; text-align: center; }
+        .winner-stat-label { font-size: 10px; color: var(--text-secondary); margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .winner-stat-value { font-size: 18px; font-weight: 700; color: var(--accent-green); font-family: 'JetBrains Mono', monospace; }
+        .orderbook-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+        .orderbook-side { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 16px; font-family: 'JetBrains Mono', monospace; }
+        .orderbook-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
+        .orderbook-header { display: grid; grid-template-columns: 1fr 1fr 1fr; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px; padding: 0 4px; }
+        .orderbook-row { display: grid; grid-template-columns: 1fr 1fr 1fr; font-size: 12px; padding: 5px 4px; border-radius: 4px; cursor: pointer; position: relative; overflow: hidden; margin-bottom: 2px; transition: opacity 0.2s; }
+        .orderbook-row:hover { opacity: 0.8; }
+        .orderbook-bar { position: absolute; top: 0; bottom: 0; opacity: 0.1; border-radius: 3px; transition: width 0.5s ease; }
+        .ask-row .orderbook-bar { background: var(--accent-red); right: 0; }
+        .bid-row .orderbook-bar { background: var(--accent-green); left: 0; }
+        .ask-price { color: var(--accent-red); font-weight: 600; }
+        .bid-price { color: var(--accent-green); font-weight: 600; }
+        .ob-amount { color: var(--text-secondary); }
+        .ob-total { color: var(--text-muted); }
+        .pairs-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .pair-btn { padding: 8px 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.2s; }
+        .pair-btn.active, .pair-btn:hover { border-color: var(--accent-green); color: var(--accent-green); background: var(--accent-green-dim); }
+        .price-info { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--bg-card); border-radius: 12px; margin-bottom: 14px; border: 1px solid var(--border-color); }
+        .current-price { font-size: 34px; font-weight: 900; color: var(--accent-green); font-family: 'JetBrains Mono', monospace; letter-spacing: -1px; transition: all 0.3s; }
+        .current-price.flash-up { animation: flashGreen 0.5s ease; }
+        .current-price.flash-down { animation: flashRed 0.5s ease; color: var(--accent-red); }
+        .price-change { font-size: 15px; font-weight: 700; padding: 8px 16px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; }
+        .price-change.positive { background: var(--accent-green-dim); color: var(--accent-green); }
+        .price-change.negative { background: var(--accent-red-dim); color: var(--accent-red); }
+        .price-stats-bar { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; margin-bottom: 14px; padding: 12px 16px; background: var(--bg-card); border-radius: 10px; border: 1px solid var(--border-color); }
+        .price-stat-item { text-align: center; }
+        .price-stat-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+        .price-stat-value { font-size: 13px; font-weight: 700; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .chart-section { background: var(--bg-secondary); border-radius: 14px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+        .chart-title { font-size: 16px; font-weight: 700; color: var(--accent-green); }
+        .tv-chart-container { width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid var(--border-color); }
+        .auth-container { max-width: 460px; margin: 60px auto; padding: 40px; background: var(--bg-secondary); border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid var(--border-color); }
+        .auth-logo { text-align: center; margin-bottom: 28px; }
+        .auth-logo-icon { font-size: 56px; display: block; margin-bottom: 8px; animation: pulse 2.5s infinite; }
+        .auth-logo-text { font-size: 28px; font-weight: 900; background: linear-gradient(135deg, var(--accent-green), var(--accent-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
+        .auth-title { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 24px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 7px; font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border-color); border-radius: 10px; background: var(--bg-card); color: var(--text-primary); font-size: 15px; font-family: 'Space Grotesk', sans-serif; transition: all 0.25s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-green); box-shadow: 0 0 0 3px rgba(14,203,129,0.1); }
+        .form-group select option { background: var(--bg-card); }
+        .btn-submit { width: 100%; padding: 15px; border: none; border-radius: 10px; background: linear-gradient(135deg, var(--accent-green), #08A566); color: #000; font-size: 16px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; cursor: pointer; transition: all 0.3s; letter-spacing: -0.3px; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(14,203,129,0.4); }
+        .balance-card { background: linear-gradient(135deg, rgba(14,203,129,0.12) 0%, rgba(0,184,255,0.06) 100%); border: 1px solid rgba(14,203,129,0.25); border-radius: 16px; padding: 24px; margin-bottom: 20px; text-align: center; position: relative; overflow: hidden; }
+        .balance-card::before { content: ''; position: absolute; top: -60%; left: 50%; transform: translateX(-50%); width: 300px; height: 200px; background: radial-gradient(ellipse, rgba(14,203,129,0.12) 0%, transparent 70%); }
+        .balance-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 700; }
+        .balance-amount { font-size: 52px; font-weight: 900; color: var(--accent-green); font-family: 'JetBrains Mono', monospace; letter-spacing: -2px; margin-bottom: 16px; }
+        .balance-sub { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+        .balance-sub-item { background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; }
+        .balance-sub-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .balance-sub-value { font-size: 15px; font-weight: 700; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+        .action-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .action-btn { padding: 18px 16px; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.3s; text-align: center; letter-spacing: -0.3px; }
+        .action-btn:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+        .account-switcher { display: flex; gap: 6px; background: var(--bg-card); padding: 5px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .switch-btn { padding: 9px 20px; border: none; border-radius: 7px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; background: transparent; color: var(--text-secondary); transition: all 0.25s; }
+        .switch-btn.active { background: linear-gradient(135deg, var(--accent-green), #08A566); color: #000; }
+        .payment-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 18px; }
+        .payment-btn { padding: 18px 14px; border: 1.5px solid var(--border-color); border-radius: 10px; background: var(--bg-card); color: var(--text-primary); cursor: pointer; font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; text-align: center; transition: all 0.25s; }
+        .payment-btn.active, .payment-btn:hover { border-color: var(--accent-green); background: var(--accent-green-dim); color: var(--accent-green); }
+        .payment-details { background: var(--accent-green-dim); border: 1.5px solid rgba(14,203,129,0.25); border-radius: 12px; padding: 20px; margin: 14px 0; display: none; }
+        .payment-details.active { display: block; animation: fadeUp 0.3s ease-out; }
+        .payment-value { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: var(--accent-green); word-break: break-all; background: rgba(0,0,0,0.3); padding: 12px 16px; border-radius: 8px; margin: 10px 0; }
+        .copy-btn { width: 100%; background: linear-gradient(135deg, var(--accent-blue), #0088cc); color: #fff; border: none; padding: 11px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; font-family: 'Space Grotesk', sans-serif; cursor: pointer; transition: all 0.25s; }
+        .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,184,255,0.4); }
+        .how-to-pay { background: rgba(14,203,129,0.05); border-left: 3px solid var(--accent-green); padding: 14px 16px; border-radius: 0 8px 8px 0; margin-top: 14px; }
+        .how-to-pay-title { font-size: 13px; font-weight: 700; color: var(--accent-green); margin-bottom: 8px; }
+        .how-to-pay ol { margin-left: 18px; font-size: 12px; color: var(--text-primary); line-height: 2; }
+        .progress-bar-container { background: var(--bg-card); border: 1px solid rgba(14,203,129,0.2); border-radius: 14px; padding: 20px; margin-bottom: 16px; display: none; }
+        .progress-bar-container.show { display: block; animation: fadeUp 0.3s ease-out; }
+        .progress-label { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--accent-green); }
+        .progress-bar-track { background: var(--bg-tertiary); border-radius: 100px; height: 10px; overflow: hidden; margin-bottom: 8px; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-green), var(--accent-blue)); border-radius: 100px; width: 0%; transition: width 0.6s ease; }
+        .progress-text { font-size: 12px; color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
+        .live-winner-toast { position: fixed; bottom: 90px; right: 20px; background: var(--bg-card); border: 1.5px solid var(--accent-green); border-radius: 14px; padding: 14px 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 9997; max-width: 280px; display: flex; align-items: center; gap: 12px; animation: slideInRight 0.4s ease-out; }
+        .live-winner-toast.hiding { animation: slideOutRight 0.4s ease-in forwards; }
+        .winner-toast-avatar { font-size: 30px; flex-shrink: 0; }
+        .winner-toast-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+        .winner-toast-amount { font-size: 16px; font-weight: 900; color: var(--accent-green); font-family: 'JetBrains Mono', monospace; }
+        .winner-toast-action { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+        .toast-notification { position: fixed; top: 80px; right: 20px; background: var(--bg-card); border: 1px solid var(--accent-green); color: var(--text-primary); padding: 16px 22px; border-radius: 14px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 10000; max-width: 380px; display: none; white-space: pre-line; font-size: 14px; line-height: 1.6; animation: slideInRight 0.4s ease-out; }
+        .toast-notification.show { display: block; }
+        .toast-notification.error { border-color: var(--accent-red); }
+        .referral-banner { position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(135deg, #0ECB81, #0B8F5F); padding: 20px; text-align: center; z-index: 9999; display: none; animation: slideDown 0.5s ease-out; }
+        .referral-banner.show { display: block; }
+        .referral-banner h2 { font-size: 24px; color: #fff; font-weight: 900; margin-bottom: 6px; }
+        .referral-banner p { font-size: 15px; color: rgba(255,255,255,0.92); line-height: 1.6; }
+        .bonus-big { display: inline-block; font-size: 40px; font-weight: 900; color: var(--accent-yellow); animation: pulse 2s infinite; margin: 8px 0; }
+        .close-banner { position: absolute; top: 12px; right: 16px; background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 22px; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; transition: all 0.3s; }
+        .close-banner:hover { background: rgba(255,255,255,0.35); transform: rotate(90deg); }
+        .ai-assistant-btn { position: fixed; bottom: 90px; right: 20px; z-index: 1000; display: none; }
+        .ai-btn-inner { width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent-purple), #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; box-shadow: 0 4px 20px rgba(168,85,247,0.5); transition: all 0.3s; border: none; animation: glow 3s ease-in-out infinite; }
+        .ai-btn-inner:hover { transform: scale(1.1); }
+        .ai-pulse-ring { position: absolute; inset: -4px; border-radius: 50%; border: 2px solid rgba(168,85,247,0.4); animation: rotate 3s linear infinite; pointer-events: none; }
+        .ai-chat-panel { position: fixed; bottom: 170px; right: 20px; width: 340px; background: var(--bg-card); border: 1px solid rgba(168,85,247,0.4); border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); z-index: 1001; display: none; overflow: hidden; flex-direction: column; }
+        .ai-chat-panel.open { display: flex; animation: fadeUp 0.3s ease-out; }
+        .ai-chat-header { background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(168,85,247,0.05)); padding: 16px 20px; border-bottom: 1px solid rgba(168,85,247,0.2); display: flex; align-items: center; gap: 12px; }
+        .ai-avatar { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent-purple), #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .ai-name { font-size: 15px; font-weight: 700; }
+        .ai-status { font-size: 11px; color: var(--accent-green); display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+        .ai-chat-messages { flex: 1; padding: 16px; max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .ai-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; }
+        .ai-msg.bot { background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.2); align-self: flex-start; border-radius: 4px 12px 12px 12px; }
+        .ai-msg.user { background: var(--accent-green-dim); border: 1px solid rgba(14,203,129,0.2); align-self: flex-end; border-radius: 12px 4px 12px 12px; color: var(--accent-green); }
+        .ai-typing { display: flex; gap: 4px; padding: 10px 14px; background: rgba(168,85,247,0.12); border-radius: 4px 12px 12px 12px; align-self: flex-start; width: fit-content; }
+        .ai-typing span { width: 6px; height: 6px; background: var(--accent-purple); border-radius: 50%; animation: blink 1s infinite; }
+        .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+        .ai-quick-replies { padding: 10px 16px; display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid rgba(168,85,247,0.15); }
+        .ai-quick-btn { padding: 6px 12px; background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.25); border-radius: 20px; color: var(--accent-purple); font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all 0.2s; }
+        .ai-quick-btn:hover { background: rgba(168,85,247,0.2); }
+        .ai-input-row { padding: 12px 16px; border-top: 1px solid rgba(168,85,247,0.15); display: flex; gap: 8px; }
+        .ai-input { flex: 1; padding: 10px 14px; background: var(--bg-tertiary); border: 1px solid rgba(168,85,247,0.25); border-radius: 10px; color: var(--text-primary); font-size: 13px; font-family: 'Space Grotesk', sans-serif; outline: none; }
+        .ai-send-btn { width: 38px; height: 38px; background: linear-gradient(135deg, var(--accent-purple), #7c3aed); border: none; border-radius: 10px; color: #fff; font-size: 16px; cursor: pointer; transition: all 0.2s; }
+        .ai-send-btn:hover { transform: scale(1.1); }
+        .bot-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 14px; padding: 22px; transition: all 0.3s; }
+        .bot-card:hover { border-color: var(--accent-green); transform: translateY(-4px); box-shadow: 0 10px 30px rgba(14,203,129,0.15); }
+        .active-bot-item { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 18px; margin-bottom: 12px; border: 1px solid var(--border-color); transition: border-color 0.3s; }
+        .active-bot-item.running { border-color: rgba(14,203,129,0.3); }
+        .active-bot-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .active-bot-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+        .active-bot-stat { text-align: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
+        .active-bot-stat-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 4px; }
+        .active-bot-stat-value { font-size: 18px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+        .history-item { background: var(--bg-card); border-radius: 12px; padding: 18px; margin-bottom: 10px; border: 1px solid var(--border-color); transition: all 0.2s; }
+        .history-item:hover { border-color: rgba(14,203,129,0.3); }
+        .profile-info-box { background: var(--bg-card); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color); }
+        .profile-info-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .profile-info-row:last-child { border-bottom: none; }
+        .profile-info-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .profile-info-value { font-size: 15px; font-weight: 700; }
+        .verified-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; background: var(--accent-green-dim); border: 1px solid rgba(14,203,129,0.3); border-radius: 20px; font-size: 11px; font-weight: 700; color: var(--accent-green); }
+        .share-rewards-card { background: linear-gradient(135deg, rgba(252,213,53,0.12), rgba(252,213,53,0.04)); border: 1px solid rgba(252,213,53,0.3); border-radius: 14px; padding: 22px; margin-bottom: 20px; }
+        .share-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; background: rgba(0,0,0,0.3); padding: 18px; border-radius: 10px; margin: 14px 0; }
+        .share-stat { text-align: center; }
+        .share-stat-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .share-stat-value { font-size: 30px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+        .whatsapp-support { position: fixed; bottom: 20px; left: 20px; z-index: 1000; }
+        .whatsapp-btn { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; padding: 14px 22px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 14px; font-family: 'Space Grotesk', sans-serif; box-shadow: 0 4px 20px rgba(37,211,102,0.4); transition: all 0.3s; }
+        .whatsapp-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(37,211,102,0.6); }
+        .alert { padding: 11px 15px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; display: none; }
+        .alert.show { display: block; animation: fadeUp 0.3s ease-out; }
+        .alert-success { background: var(--accent-green-dim); border: 1px solid rgba(14,203,129,0.3); color: var(--accent-green); }
+        .alert-error { background: var(--accent-red-dim); border: 1px solid rgba(246,70,93,0.3); color: var(--accent-red); }
+        .confetti-piece { position: fixed; z-index: 9999; pointer-events: none; border-radius: 2px; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        .mobile-bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 8px 0; z-index: 999; }
+        @media (max-width: 768px) { .mobile-bottom-nav { display: flex; } }
+        .mobile-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 6px 0; transition: all 0.2s; }
+        .mobile-nav-item.active .mobile-nav-icon, .mobile-nav-item.active .mobile-nav-label { color: var(--accent-green); }
+        .mobile-nav-icon { font-size: 20px; }
+        .mobile-nav-label { font-size: 10px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        @media (max-width: 768px) {
+            .container { padding: 12px; }
+            .hero-section h1 { font-size: 32px; }
+            .hero-section { padding: 28px 20px; }
+            .orderbook-grid { grid-template-columns: 1fr; }
+            .price-stats-bar { grid-template-columns: repeat(3,1fr); }
+            .balance-amount { font-size: 38px; }
+            .ai-chat-panel { width: calc(100vw - 40px); right: 20px; }
+            .market-ticker-bar { display: none; }
+            .payment-grid { grid-template-columns: 1fr; }
+            .navbar { top: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="referralSuccessBanner" class="referral-banner">
+    <button class="close-banner" onclick="closeReferralBanner()">×</button>
+    <h2>🎉 CONGRATULATIONS! 🎉</h2>
+    <p><strong id="referrerName">Your friend</strong> is crushing it on CryptoPro!</p>
+    <div class="bonus-big">GET $25 BONUS!</div>
+    <p>✅ Sign up now &nbsp;✅ 100% withdrawable &nbsp;✅ Start earning day one</p>
+</div>
+
+<div id="toastNotification" class="toast-notification"></div>
+
+<div class="market-ticker-bar">
+    <div class="ticker-track" id="marketTickerTrack"></div>
+</div>
+
+<div class="ai-assistant-btn" id="aiAssistantBtn">
+    <button class="ai-btn-inner" onclick="toggleAIChat()">🤖</button>
+    <div class="ai-pulse-ring"></div>
+</div>
+
+<div class="ai-chat-panel" id="aiChatPanel">
+    <div class="ai-chat-header">
+        <div class="ai-avatar">🤖</div>
+        <div>
+            <div class="ai-name">ARIA — CryptoPro AI</div>
+            <div class="ai-status"><span class="status-dot"></span> Online • Always ready</div>
+        </div>
+        <button onclick="toggleAIChat()" style="margin-left:auto;background:none;border:none;color:var(--text-secondary);font-size:20px;cursor:pointer;line-height:1;">×</button>
+    </div>
+    <div class="ai-chat-messages" id="aiMessages">
+        <div class="ai-msg bot">👋 Hi! I'm <strong>ARIA</strong>, your AI trading assistant.<br><br>I can help you with market insights, trading strategies, deposit guides and more. What would you like to know?</div>
+    </div>
+    <div class="ai-quick-replies">
+        <button class="ai-quick-btn" onclick="sendAIQuickReply('Best bot for beginners?')">Best bot?</button>
+        <button class="ai-quick-btn" onclick="sendAIQuickReply('How do I deposit?')">How to deposit?</button>
+        <button class="ai-quick-btn" onclick="sendAIQuickReply('BTC price prediction?')">BTC outlook?</button>
+        <button class="ai-quick-btn" onclick="sendAIQuickReply('How does withdrawal work?')">Withdraw?</button>
+        <button class="ai-quick-btn" onclick="sendAIQuickReply('How does referral work?')">Referrals?</button>
+    </div>
+    <div class="ai-input-row">
+        <input type="text" class="ai-input" id="aiInput" placeholder="Ask ARIA anything..." onkeydown="if(event.key==='Enter')sendAIMessage()">
+        <button class="ai-send-btn" onclick="sendAIMessage()">➤</button>
+    </div>
+</div>
+
+<!-- WELCOME LAYER -->
+<div id="welcomeLayer" class="layer active">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('welcomeLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links">
+            <button class="nav-btn btn-login" onclick="showLayer('loginLayer')">Login</button>
+            <button class="nav-btn btn-signup" onclick="showLayer('signupLayer')">Sign Up Free</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="bonus-countdown-bar">
+            <div>
+                <div class="bonus-countdown-text">🔥 100% Welcome Bonus — First Deposit DOUBLED!</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:3px;">Limited time offer — Don't miss out!</div>
+            </div>
+            <div class="countdown-timer">
+                <div class="countdown-unit"><span class="countdown-num" id="cdHours">23</span><span class="countdown-label">Hours</span></div>
+                <span class="countdown-colon">:</span>
+                <div class="countdown-unit"><span class="countdown-num" id="cdMins">47</span><span class="countdown-label">Mins</span></div>
+                <span class="countdown-colon">:</span>
+                <div class="countdown-unit"><span class="countdown-num" id="cdSecs">00</span><span class="countdown-label">Secs</span></div>
+            </div>
+            <div class="viewing-count">🔴 <span id="viewingCount">47</span> people viewing</div>
+        </div>
+        <div class="hero-section">
+            <h1>🚀 The Future of<br>Crypto Trading</h1>
+            <p>Join 50,000+ successful traders earning daily profits with AI-powered automation. Get started with a <strong style="color:var(--accent-green);">$25 signup bonus</strong> and experience professional trading today!</p>
+            <div class="hero-cta">
+                <button class="hero-btn hero-btn-primary" onclick="showLayer('signupLayer')">Get Started — Free $25 Bonus</button>
+                <button class="hero-btn hero-btn-secondary" onclick="showLayer('chartsLayer')">View Live Charts</button>
+            </div>
+        </div>
+        <div class="live-traders-section">
+            <div class="section-title">🔥 Live Active Traders — Real-Time Profits</div>
+            <div class="ticker-wrapper"><div class="ticker-content" id="liveTradersTicker"></div></div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="statTraders">50,247</div><div class="stat-label">Active Traders</div></div>
+            <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value">$125M+</div><div class="stat-label">Total Profits Paid</div></div>
+            <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-value">98.5%</div><div class="stat-label">Success Rate</div></div>
+            <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value" id="statTrades">15,892</div><div class="stat-label">Daily Trades</div></div>
+        </div>
+        <div class="chart-section">
+            <div class="section-title">🏆 Top Traders This Week</div>
+            <div class="winners-grid" id="topWinnersGrid"></div>
+        </div>
+        <div class="action-buttons">
+            <button class="action-btn" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;" onclick="showLayer('reviewsLayer')">⭐ See Reviews</button>
+            <button class="action-btn" style="background:linear-gradient(135deg,var(--accent-green),#08A566);color:#000;" onclick="showLayer('signupLayer')">📊 Start Trading Now</button>
+        </div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- CHARTS LAYER -->
+<div id="chartsLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('welcomeLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links">
+            <div class="status-badge"><span class="status-dot"></span> LIVE</div>
+            <button class="nav-btn btn-signup" onclick="showLayer('signupLayer')">Sign Up</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="pairs-selector" id="chartPairsSelector">
+            <button class="pair-btn active" onclick="selectChartPair(this,'BTCUSDT','BTC/USDT','Bitcoin / USDT')">BTC/USDT</button>
+            <button class="pair-btn" onclick="selectChartPair(this,'ETHUSDT','ETH/USDT','Ethereum / USDT')">ETH/USDT</button>
+            <button class="pair-btn" onclick="selectChartPair(this,'BNBUSDT','BNB/USDT','BNB / USDT')">BNB/USDT</button>
+            <button class="pair-btn" onclick="selectChartPair(this,'SOLUSDT','SOL/USDT','Solana / USDT')">SOL/USDT</button>
+            <button class="pair-btn" onclick="selectChartPair(this,'ADAUSDT','ADA/USDT','Cardano / USDT')">ADA/USDT</button>
+            <button class="pair-btn" onclick="selectChartPair(this,'XRPUSDT','XRP/USDT','Ripple / USDT')">XRP/USDT</button>
+        </div>
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">📈 <span id="chartPairLabel">BTC/USDT</span> Live Chart</div>
+                <div class="status-badge"><span class="status-dot"></span> LIVE</div>
+            </div>
+            <div class="price-info">
+                <div>
+                    <div class="current-price" id="currentPrice">$98,245.50</div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;" id="currentPairSub">Bitcoin / USDT</div>
+                </div>
+                <div class="price-change positive" id="priceChange">+2.45%</div>
+            </div>
+            <div class="price-stats-bar">
+                <div class="price-stat-item"><div class="price-stat-label">24h High</div><div class="price-stat-value" id="chartHigh">$99,120</div></div>
+                <div class="price-stat-item"><div class="price-stat-label">24h Low</div><div class="price-stat-value" id="chartLow">$96,800</div></div>
+                <div class="price-stat-item"><div class="price-stat-label">Volume</div><div class="price-stat-value" id="chartVolume">28.5B</div></div>
+                <div class="price-stat-item"><div class="price-stat-label">Open</div><div class="price-stat-value" id="chartOpen">$97,850</div></div>
+                <div class="price-stat-item"><div class="price-stat-label">Close</div><div class="price-stat-value" id="chartClose">$98,245</div></div>
+                <div class="price-stat-item"><div class="price-stat-label">24h Change</div><div class="price-stat-value" id="chart24h" style="color:var(--accent-green);">+2.45%</div></div>
+            </div>
+            <div class="tv-chart-container"><div id="tv_chart_main" style="height:500px;"></div></div>
+        </div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- SIGNUP LAYER -->
+<div id="signupLayer" class="layer">
+    <div class="auth-container">
+        <div class="auth-logo">
+            <span class="auth-logo-icon">💎</span>
+            <div class="auth-logo-text">CryptoPro</div>
+        </div>
+        <div class="auth-title">Start Your Trading Journey</div>
+        <div style="background:var(--accent-green-dim);border:1px solid rgba(14,203,129,0.3);border-radius:10px;padding:12px 16px;margin-bottom:20px;text-align:center;">
+            <div style="font-size:14px;font-weight:700;color:var(--accent-green);">🎁 You'll receive $25 INSTANT BONUS on signup!</div>
+        </div>
+        <div id="signupAlert" class="alert"></div>
+        <form onsubmit="return handleSignup(event)">
+            <div class="form-group"><label>Full Name</label><input type="text" id="signupName" placeholder="Enter your full name" required></div>
+            <div class="form-group"><label>Email Address</label><input type="email" id="signupEmail" placeholder="your@email.com" required></div>
+            <div class="form-group"><label>Phone Number</label><input type="tel" id="signupPhone" placeholder="+254 712 345 678" required></div>
+            <div class="form-group"><label>Password</label><input type="password" id="signupPassword" placeholder="Create strong password" required></div>
+            <div class="form-group"><label>Confirm Password</label><input type="password" id="signupConfirm" placeholder="Re-enter password" required></div>
+            <div class="form-group"><label>Referral Code (Optional)</label><input type="text" id="signupReferralCode" placeholder="Enter referral code if you have one"></div>
+            <button type="submit" class="btn-submit">🚀 Create Account & Get $25 Bonus</button>
+        </form>
+        <div style="text-align:center;margin-top:20px;font-size:14px;color:var(--text-secondary);">Already have an account? <a onclick="showLayer('loginLayer')" style="color:var(--accent-green);cursor:pointer;font-weight:700;">Login Here</a></div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- LOGIN LAYER -->
+<div id="loginLayer" class="layer">
+    <div class="auth-container">
+        <div class="auth-logo">
+            <span class="auth-logo-icon">💎</span>
+            <div class="auth-logo-text">CryptoPro</div>
+        </div>
+        <div class="auth-title">Welcome Back</div>
+        <div id="loginAlert" class="alert"></div>
+        <form onsubmit="return handleLogin(event)">
+            <div class="form-group"><label>Email Address</label><input type="email" id="loginEmail" placeholder="your@email.com" required></div>
+            <div class="form-group"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required></div>
+            <button type="submit" class="btn-submit">🔐 Login to Account</button>
+        </form>
+        <div style="text-align:center;margin-top:20px;font-size:14px;color:var(--text-secondary);">Don't have an account? <a onclick="showLayer('signupLayer')" style="color:var(--accent-green);cursor:pointer;font-weight:700;">Create Account</a></div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- DASHBOARD LAYER -->
+<div id="dashboardLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links">
+            <div class="status-badge"><span class="status-dot"></span> LIVE</div>
+            <div style="position:relative;" id="notifBellWrapper">
+                <div class="notif-bell" onclick="toggleNotifications()">🔔<div class="notif-count" id="notifCount">3</div></div>
+                <div class="notif-dropdown" id="notifDropdown">
+                    <div class="notif-header">Notifications<span style="font-size:11px;color:var(--accent-green);cursor:pointer;font-weight:600;" onclick="clearNotifications()">Mark all read</span></div>
+                    <div id="notifList"></div>
+                </div>
+            </div>
+            <button class="nav-btn btn-login" onclick="handleLogout()">Logout</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="background:var(--bg-secondary);padding:18px 20px;border-radius:14px;margin-bottom:18px;border:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--accent-green),var(--accent-blue));display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">👤</div>
+                <div>
+                    <div style="font-size:18px;font-weight:700;" id="userName">User</div>
+                    <div style="font-size:12px;color:var(--text-secondary);" id="userEmail">email@example.com</div>
+                    <div class="verified-badge" style="margin-top:5px;">✓ Verified Trader</div>
+                </div>
+            </div>
+            <div class="account-switcher">
+                <button class="switch-btn active" id="switchToDemo" onclick="switchAccount('demo')">📊 DEMO</button>
+                <button class="switch-btn" id="switchToReal" onclick="switchAccount('real')">💎 REAL</button>
+            </div>
+        </div>
+        <div id="accountModeIndicator" style="margin-bottom:16px;"></div>
+        <div class="balance-card">
+            <div class="balance-label"><span id="accountTypeLabel">DEMO</span> Account Balance</div>
+            <div class="balance-amount" id="dashBalance">$25.00</div>
+            <div class="balance-sub">
+                <div class="balance-sub-item"><div class="balance-sub-label">Available</div><div class="balance-sub-value" id="dashAvailable">$25.00</div></div>
+                <div class="balance-sub-item"><div class="balance-sub-label">In Trades</div><div class="balance-sub-value" id="dashInTrades">$0.00</div></div>
+                <div class="balance-sub-item"><div class="balance-sub-label">Total Profit</div><div class="balance-sub-value" style="color:var(--accent-green);" id="dashProfit">$0.00</div></div>
+            </div>
+        </div>
+        <div class="action-buttons">
+            <button class="action-btn" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;" onclick="showLayer('tradingLayer')">⚡ Trade Now</button>
+            <button class="action-btn" style="background:linear-gradient(135deg,var(--accent-green),#08A566);color:#000;" onclick="showLayer('depositLayer')">💰 Deposit</button>
+            <button class="action-btn" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;" onclick="showLayer('botsLayer')">🤖 AI Bots</button>
+        </div>
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">📈 Live Market Overview</div>
+                <div class="status-badge"><span class="status-dot"></span> LIVE</div>
+            </div>
+            <div class="tv-chart-container"><div id="tv_chart_dash" style="height:280px;"></div></div>
+        </div>
+        <div class="action-buttons">
+            <button class="action-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;" onclick="showLayer('historyLayer')">📜 Trade History</button>
+            <button class="action-btn" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;" onclick="showLayer('withdrawalLayer')">💸 Withdraw</button>
+            <button class="action-btn" style="background:linear-gradient(135deg,#ec4899,#db2777);color:#fff;" onclick="showLayer('referralLayer')">🎁 Referrals</button>
+            <button class="action-btn" style="background:linear-gradient(135deg,#06b6d4,#0891b2);color:#fff;" onclick="showLayer('profileLayer')">⚙️ Profile</button>
+        </div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+    <div class="mobile-bottom-nav">
+        <div class="mobile-nav-item active" onclick="showLayer('dashboardLayer')"><div class="mobile-nav-icon">🏠</div><div class="mobile-nav-label">Home</div></div>
+        <div class="mobile-nav-item" onclick="showLayer('tradingLayer')"><div class="mobile-nav-icon">📊</div><div class="mobile-nav-label">Trade</div></div>
+        <div class="mobile-nav-item" onclick="showLayer('depositLayer')"><div class="mobile-nav-icon">💰</div><div class="mobile-nav-label">Deposit</div></div>
+        <div class="mobile-nav-item" onclick="showLayer('withdrawalLayer')"><div class="mobile-nav-icon">💸</div><div class="mobile-nav-label">Withdraw</div></div>
+        <div class="mobile-nav-item" onclick="showLayer('profileLayer')"><div class="mobile-nav-icon">👤</div><div class="mobile-nav-label">Profile</div></div>
+    </div>
+</div>
+
+<!-- DEPOSIT LAYER -->
+<div id="depositLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links"><button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button></div>
+    </nav>
+    <div class="container">
+        <div class="hero-section" style="padding:28px 32px;">
+            <h1 style="font-size:38px;">💰 Deposit Funds</h1>
+            <p style="margin-bottom:0;">Fund your account instantly. Auto-credited within 5 minutes after verification.</p>
+        </div>
+        <div class="bonus-countdown-bar">
+            <div>
+                <div class="bonus-countdown-text">🎉 100% WELCOME BONUS — First Deposit Doubled!</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:3px;">This offer expires in:</div>
+            </div>
+            <div class="countdown-timer">
+                <div class="countdown-unit"><span class="countdown-num" id="cdHours2">23</span><span class="countdown-label">Hrs</span></div>
+                <span class="countdown-colon">:</span>
+                <div class="countdown-unit"><span class="countdown-num" id="cdMins2">47</span><span class="countdown-label">Min</span></div>
+                <span class="countdown-colon">:</span>
+                <div class="countdown-unit"><span class="countdown-num" id="cdSecs2">00</span><span class="countdown-label">Sec</span></div>
+            </div>
+            <div class="viewing-count">👁 <span id="depositViewers">23</span> people depositing now</div>
+        </div>
+        <div class="progress-bar-container" id="depositProgressBar">
+            <div class="progress-label" id="progressLabel">⏳ Verifying payment...</div>
+            <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+            <div class="progress-text" id="progressText">0% complete</div>
+        </div>
+        <div class="chart-section">
+            <form id="depositForm" onsubmit="return processDeposit(event)">
+                <div class="form-group">
+                    <label>Deposit Amount (USD)</label>
+                    <input type="number" id="depositAmount" min="10" step="0.01" placeholder="Minimum $10" required oninput="updateCurrencyConversion()">
+                </div>
+                <div id="currencyConverterContainer"></div>
+                <div class="form-group">
+                    <label>Select Payment Method</label>
+                    <div class="payment-grid">
+                        <button type="button" class="payment-btn" onclick="selectPaymentMethod('mpesa-phone',this)">📱 M-Pesa<br><small style="font-size:11px;opacity:0.7;">+254759401893</small></button>
+                        <button type="button" class="payment-btn" onclick="selectPaymentMethod('mpesa-till',this)">🏪 M-Pesa Till<br><small style="font-size:11px;opacity:0.7;">7500448</small></button>
+                        <button type="button" class="payment-btn" onclick="selectPaymentMethod('bank',this)">🏦 Bank Transfer<br><small style="font-size:11px;opacity:0.7;">Equity Bank</small></button>
+                        <button type="button" class="payment-btn" onclick="selectPaymentMethod('crypto',this)">🪙 USDT Crypto<br><small style="font-size:11px;opacity:0.7;">TRC-20</small></button>
+                    </div>
+                </div>
+                <div id="mpesa-phone" class="payment-details">
+                    <div style="text-align:center;font-size:17px;font-weight:700;color:var(--accent-green);margin-bottom:14px;">📱 M-Pesa Phone Number</div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Send Money To:</div>
+                    <div class="payment-value">+254759401893</div>
+                    <button type="button" class="copy-btn" onclick="copyToClipboard('+254759401893')">📋 Copy Phone Number</button>
+                    <div class="how-to-pay">
+                        <div class="how-to-pay-title">How to Pay via M-Pesa:</div>
+                        <ol>
+                            <li>Open M-Pesa on your phone</li>
+                            <li>Select <strong>"Send Money"</strong></li>
+                            <li>Enter number: <strong>+254759401893</strong></li>
+                            <li>Enter the amount in KES</li>
+                            <li>Enter your M-Pesa PIN and confirm</li>
+                            <li>Submit the M-Pesa code below</li>
+                        </ol>
+                    </div>
+                </div>
+                <div id="mpesa-till" class="payment-details">
+                    <div style="text-align:center;font-size:17px;font-weight:700;color:var(--accent-green);margin-bottom:14px;">🏪 M-Pesa Till Number</div>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px;">Buy Goods Till Number:</div>
+                    <div class="payment-value">7500448</div>
+                    <button type="button" class="copy-btn" onclick="copyToClipboard('7500448')">📋 Copy Till Number</button>
+                    <div class="how-to-pay">
+                        <div class="how-to-pay-title">How to Pay via Till:</div>
+                        <ol>
+                            <li>Open M-Pesa on your phone</li>
+                            <li>Select <strong>"Lipa na M-Pesa"</strong></li>
+                            <li>Select <strong>"Buy Goods and Services"</strong></li>
+                            <li>Enter Till Number: <strong>7500448</strong></li>
+                            <li>Enter amount in KES and confirm</li>
+                            <li>Submit confirmation code below</li>
+                        </ol>
+                    </div>
+                </div>
+                <div id="bank" class="payment-details">
+                    <div style="text-align:center;font-size:17px;font-weight:700;color:var(--accent-green);margin-bottom:14px;">🏦 Equity Bank Transfer</div>
+                    <div style="background:rgba(0,0,0,0.3);padding:16px;border-radius:10px;">
+                        <div style="margin-bottom:12px;"><div style="font-size:11px;color:var(--text-secondary);margin-bottom:3px;text-transform:uppercase;">Bank Name</div><div style="font-size:16px;font-weight:700;">Equity Bank Kenya</div></div>
+                        <div style="margin-bottom:12px;"><div style="font-size:11px;color:var(--text-secondary);margin-bottom:3px;text-transform:uppercase;">Account Name</div><div style="font-size:16px;font-weight:700;">Felix Kiprotich Koskei</div></div>
+                        <div style="margin-bottom:12px;"><div style="font-size:11px;color:var(--text-secondary);margin-bottom:3px;text-transform:uppercase;">Account Number</div><div class="payment-value" style="margin:0;">0310184912409</div></div>
+                        <div><div style="font-size:11px;color:var(--text-secondary);margin-bottom:3px;text-transform:uppercase;">Branch</div><div style="font-size:16px;font-weight:700;">Any Equity Bank Branch</div></div>
+                    </div>
+                    <button type="button" class="copy-btn" style="margin-top:12px;" onclick="copyToClipboard('0310184912409')">📋 Copy Account Number</button>
+                </div>
+                <div id="crypto" class="payment-details">
+                    <div style="text-align:center;font-size:17px;font-weight:700;color:var(--accent-green);margin-bottom:14px;">🪙 USDT — TRC-20 Network</div>
+                    <div style="font-size:12px;color:var(--accent-yellow);font-weight:700;margin-bottom:8px;">Network: TRC-20 (Tron) ⚠️</div>
+                    <div class="payment-value" style="font-size:13px;">TK4rUz6TUEd7zCWeuiX5R47pSNdPswJnAc</div>
+                    <button type="button" class="copy-btn" onclick="copyToClipboard('TK4rUz6TUEd7zCWeuiX5R47pSNdPswJnAc')">📋 Copy Wallet Address</button>
+                    <div style="background:var(--accent-red-dim);border:1px solid rgba(246,70,93,0.3);border-radius:10px;padding:14px;margin-top:14px;font-size:12px;color:var(--text-primary);line-height:1.7;">⚠️ Only send <strong>USDT on TRC-20 network</strong>. Wrong network = permanent loss of funds.</div>
+                </div>
+                <div class="form-group" style="margin-top:18px;">
+                    <label>Payment Proof / Transaction Code</label>
+                    <textarea id="depositProof" rows="4" placeholder="Paste your M-Pesa code, transaction ID, or describe your payment here." required style="min-height:100px;resize:vertical;"></textarea>
+                </div>
+                <button type="submit" class="btn-submit">✅ Submit Deposit Request</button>
+            </form>
+        </div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- TRADING LAYER -->
+<div id="tradingLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links">
+            <div class="status-badge"><span class="status-dot"></span> LIVE</div>
+            <button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="hero-section" style="padding:22px 28px;">
+            <h1 style="font-size:34px;">⚡ Live Trading</h1>
+            <p style="margin-bottom:0;font-size:15px;">Execute trades in real-time with advanced leverage and risk management</p>
+        </div>
+        <div class="pairs-selector">
+            <button class="pair-btn active" onclick="selectTradePair(this,'BTCUSDT','BTC/USDT','Bitcoin / USDT')">BTC/USDT</button>
+            <button class="pair-btn" onclick="selectTradePair(this,'ETHUSDT','ETH/USDT','Ethereum / USDT')">ETH/USDT</button>
+            <button class="pair-btn" onclick="selectTradePair(this,'BNBUSDT','BNB/USDT','BNB / USDT')">BNB/USDT</button>
+            <button class="pair-btn" onclick="selectTradePair(this,'SOLUSDT','SOL/USDT','Solana / USDT')">SOL/USDT</button>
+            <button class="pair-btn" onclick="selectTradePair(this,'XRPUSDT','XRP/USDT','Ripple / USDT')">XRP/USDT</button>
+        </div>
+        <div class="price-info">
+            <div>
+                <div class="current-price" id="tradePrice">$98,245.50</div>
+                <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;" id="tradePairSub">Bitcoin / USDT</div>
+            </div>
+            <div class="price-change positive" id="tradePriceChange">+2.45%</div>
+        </div>
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">📈 <span id="tradePairLabel">BTC/USDT</span></div>
+                <div class="status-badge"><span class="status-dot"></span> LIVE</div>
+            </div>
+            <div class="tv-chart-container"><div id="tv_chart_trade" style="height:420px;"></div></div>
+        </div>
+        <div class="orderbook-grid">
+            <div class="orderbook-side">
+                <div class="orderbook-title" style="color:var(--accent-red);">🔴 Asks — Sell Orders</div>
+                <div class="orderbook-header"><span>Price (USDT)</span><span>Amount</span><span>Total</span></div>
+                <div id="asksContainer"></div>
+            </div>
+            <div class="orderbook-side">
+                <div class="orderbook-title" style="color:var(--accent-green);">🟢 Bids — Buy Orders</div>
+                <div class="orderbook-header"><span>Price (USDT)</span><span>Amount</span><span>Total</span></div>
+                <div id="bidsContainer"></div>
+            </div>
+        </div>
+        <div class="chart-section">
+            <div class="section-title" style="margin-bottom:16px;">📋 Place Order</div>
+            <form id="tradeForm" onsubmit="return executeTrade(event)">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+                    <button type="button" class="payment-btn active" id="buyBtn" onclick="selectTradeType('buy')" style="background:var(--accent-green-dim);border-color:var(--accent-green);color:var(--accent-green);font-size:15px;padding:16px;">📈 BUY / LONG</button>
+                    <button type="button" class="payment-btn" id="sellBtn" onclick="selectTradeType('sell')" style="font-size:15px;padding:16px;">📉 SELL / SHORT</button>
+                </div>
+                <div class="form-group">
+                    <label>Trade Amount (USD)</label>
+                    <input type="number" id="tradeAmount" min="10" step="0.01" placeholder="Enter amount to trade" required oninput="updatePositionSize()">
+                    <div style="font-size:12px;color:var(--text-secondary);margin-top:6px;">Available: <span id="tradeAvailableBalance" style="font-weight:700;color:var(--text-primary);font-family:'JetBrains Mono',monospace;">$0.00</span></div>
+                </div>
+                <div class="form-group">
+                    <label>Leverage</label>
+                    <select id="tradeLeverage" onchange="updatePositionSize()">
+                        <option value="1">1x — No Leverage</option>
+                        <option value="2">2x</option>
+                        <option value="5">5x</option>
+                        <option value="10" selected>10x</option>
+                        <option value="20">20x</option>
+                        <option value="50">50x</option>
+                        <option value="100">100x — High Risk</option>
+                    </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;">
+                    <div class="form-group" style="margin:0;"><label>Take Profit (USD)</label><input type="number" id="takeProfitPrice" placeholder="Optional" step="0.01"></div>
+                    <div class="form-group" style="margin:0;"><label>Stop Loss (USD)</label><input type="number" id="stopLossPrice" placeholder="Optional" step="0.01"></div>
+                </div>
+                <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;margin-bottom:18px;">
+                    <div style="font-size:12px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Order Summary</div>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+                        <div><div style="font-size:10px;color:var(--text-secondary);margin-bottom:4px;">Entry Price</div><div style="font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace;" id="entryPriceDisplay">$98,245.50</div></div>
+                        <div><div style="font-size:10px;color:var(--text-secondary);margin-bottom:4px;">Position Size</div><div style="font-size:14px;font-weight:700;color:var(--accent-green);font-family:'JetBrains Mono',monospace;" id="positionSizeDisplay">$0.00</div></div>
+                        <div><div style="font-size:10px;color:var(--text-secondary);margin-bottom:4px;">Liquidation</div><div style="font-size:14px;font-weight:700;color:var(--accent-red);font-family:'JetBrains Mono',monospace;" id="liquidationDisplay">—</div></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit" id="tradeSubmitBtn" style="background:linear-gradient(135deg,var(--accent-green),#08A566);">🚀 Execute Trade</button>
+            </form>
+        </div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- BOTS LAYER -->
+<div id="botsLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links"><button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button></div>
+    </nav>
+    <div class="container">
+        <div class="hero-section" style="padding:22px 28px;">
+            <h1 style="font-size:34px;">🤖 AI Trading Bots</h1>
+            <p style="margin-bottom:0;">Automate your trading 24/7 with AI-powered strategies.</p>
+        </div>
+        <div class="winners-grid" id="botsGrid"></div>
+        <div class="chart-section" style="margin-top:8px;">
+            <div class="section-title">⚡ Active Bots — Live Performance</div>
+            <div id="activeBotsContainer"></div>
+        </div>
+        <div class="chart-section">
+            <div class="section-title">📊 Bot Statistics — Last 24 Hours</div>
+            <div class="stats-grid" id="botStatsGrid"></div>
+        </div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- HISTORY LAYER -->
+<div id="historyLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links"><button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button></div>
+    </nav>
+    <div class="container">
+        <div class="hero-section" style="padding:22px 28px;">
+            <h1 style="font-size:34px;">📜 Trade History</h1>
+            <p style="margin-bottom:0;">Complete record of all your trading activity</p>
+        </div>
+        <div class="stats-grid" id="historyStatsGrid"></div>
+        <div class="chart-section"><div id="tradeHistoryContainer" style="max-height:650px;overflow-y:auto;"></div></div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- WITHDRAWAL LAYER -->
+<div id="withdrawalLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links"><button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button></div>
+    </nav>
+    <div class="container">
+        <div class="hero-section" style="padding:22px 28px;">
+            <h1 style="font-size:34px;">💸 Withdraw Funds</h1>
+            <p style="margin-bottom:0;">Fast and secure withdrawals processed within 5–30 minutes</p>
+        </div>
+        <div class="progress-bar-container" id="withdrawProgressBar">
+            <div class="progress-label" id="withdrawProgressLabel">⏳ Processing withdrawal...</div>
+            <div class="progress-bar-track"><div class="progress-bar-fill" id="withdrawProgressFill"></div></div>
+            <div class="progress-text" id="withdrawProgressText">0% complete</div>
+        </div>
+        <div class="chart-section">
+            <div style="background:var(--accent-green-dim);border:1px solid rgba(14,203,129,0.25);border-radius:12px;padding:20px;margin-bottom:20px;text-align:center;">
+                <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--text-secondary);margin-bottom:8px;font-weight:700;">Available for Withdrawal</div>
+                <div style="font-size:44px;font-weight:900;color:var(--accent-green);font-family:'JetBrains Mono',monospace;letter-spacing:-2px;" id="withdrawAvailable">$0.00</div>
+            </div>
+            <form id="withdrawalForm" onsubmit="return processWithdrawal(event)">
+                <div class="form-group">
+                    <label>Withdrawal Amount (USD)</label>
+                    <input type="number" id="withdrawAmount" min="50" step="0.01" placeholder="Minimum $50" required>
+                    <div style="font-size:12px;color:var(--text-secondary);margin-top:6px;">Min: $50 | Max: <span id="maxWithdraw" style="font-weight:700;font-family:'JetBrains Mono',monospace;">$0.00</span> | Fee: 2%</div>
+                </div>
+                <div class="form-group">
+                    <label>Withdrawal Method</label>
+                    <div class="payment-grid" style="grid-template-columns:repeat(3,1fr);">
+                        <button type="button" class="payment-btn" onclick="selectWithdrawMethod('mpesa',this)">📱 M-Pesa</button>
+                        <button type="button" class="payment-btn" onclick="selectWithdrawMethod('bank',this)">🏦 Bank</button>
+                        <button type="button" class="payment-btn" onclick="selectWithdrawMethod('crypto',this)">🪙 Crypto</button>
+                    </div>
+                </div>
+                <div id="withdraw-mpesa" class="payment-details">
+                    <div class="form-group"><label>M-Pesa Phone Number</label><input type="tel" id="withdrawMpesaPhone" placeholder="+254 712 345 678"></div>
+                    <div class="form-group"><label>Full Name</label><input type="text" id="withdrawMpesaName" placeholder="Your M-Pesa registered name"></div>
+                </div>
+                <div id="withdraw-bank" class="payment-details">
+                    <div class="form-group"><label>Bank Name</label><input type="text" id="withdrawBankName" placeholder="e.g. Equity Bank, KCB"></div>
+                    <div class="form-group"><label>Account Number</label><input type="text" id="withdrawAccountNumber" placeholder="Your account number"></div>
+                    <div class="form-group"><label>Account Holder Name</label><input type="text" id="withdrawAccountName" placeholder="Name as on bank account"></div>
+                </div>
+                <div id="withdraw-crypto" class="payment-details">
+                    <div class="form-group"><label>USDT Wallet Address (TRC-20)</label><input type="text" id="withdrawCryptoAddress" placeholder="Your TRC-20 USDT wallet address"></div>
+                    <div style="background:var(--accent-red-dim);border:1px solid rgba(246,70,93,0.3);border-radius:10px;padding:12px;font-size:12px;color:var(--accent-red);">⚠️ Only TRC-20 network. Wrong address = permanent loss.</div>
+                </div>
+                <button type="submit" class="btn-submit" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;margin-top:16px;">💸 Request Withdrawal</button>
+            </form>
+        </div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- REFERRAL LAYER -->
+<div id="referralLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links"><button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button></div>
+    </nav>
+    <div class="container">
+        <div class="hero-section" style="padding:22px 28px;">
+            <h1 style="font-size:34px;">🎁 Referral Program</h1>
+            <p style="margin-bottom:0;">Earn 10% commission on every deposit your referrals make — for life!</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="totalReferrals">0</div><div class="stat-label">Total Referrals</div></div>
+            <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" id="totalCommission">$0.00</div><div class="stat-label">Total Earned</div></div>
+            <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-value" id="activeReferrals">0</div><div class="stat-label">Active Traders</div></div>
+            <div class="stat-card"><div class="stat-icon">📢</div><div class="stat-value" id="totalShares">0</div><div class="stat-label">Total Shares</div></div>
+        </div>
+        <div class="share-rewards-card">
+            <div style="text-align:center;margin-bottom:14px;">
+                <div style="font-size:44px;margin-bottom:8px;">💰</div>
+                <div style="font-size:22px;font-weight:900;color:var(--accent-yellow);margin-bottom:4px;">EARN $5 PER SHARE!</div>
+            </div>
+            <div class="share-stats-grid">
+                <div class="share-stat"><div class="share-stat-label">Total Shares</div><div class="share-stat-value" style="color:var(--accent-yellow);" id="shareCountDisplay">0</div></div>
+                <div class="share-stat"><div class="share-stat-label">Share Earnings</div><div class="share-stat-value" style="color:var(--accent-green);" id="shareEarningsDisplay">$0.00</div></div>
+            </div>
+        </div>
+        <div class="chart-section">
+            <div class="section-title">Your Referral Link</div>
+            <div style="background:var(--accent-green-dim);border:1.5px solid rgba(14,203,129,0.25);border-radius:12px;padding:18px;margin-bottom:20px;">
+                <div class="payment-value" style="margin:0 0 12px 0;font-size:13px;" id="referralLink">Loading...</div>
+                <button class="copy-btn" onclick="copyReferralLink()">📋 Copy Referral Link</button>
+            </div>
+            <div class="section-title">Share Via:</div>
+            <div class="action-buttons">
+                <button class="action-btn" style="background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;" onclick="shareViaWhatsApp()">💬 WhatsApp (+$5)</button>
+                <button class="action-btn" style="background:linear-gradient(135deg,#0088cc,#006699);color:#fff;" onclick="shareViaTelegram()">✈️ Telegram (+$5)</button>
+                <button class="action-btn" style="background:linear-gradient(135deg,#1877f2,#0d5dbf);color:#fff;" onclick="shareViaFacebook()">📘 Facebook (+$5)</button>
+                <button class="action-btn" style="background:linear-gradient(135deg,#1da1f2,#0c85d0);color:#fff;" onclick="shareViaTwitter()">🐦 Twitter (+$5)</button>
+            </div>
+        </div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- REVIEWS LAYER -->
+<div id="reviewsLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('welcomeLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links"><button class="nav-btn btn-signup" onclick="showLayer('signupLayer')">Sign Up Free</button></div>
+    </nav>
+    <div class="container">
+        <div class="hero-section" style="padding:22px 28px;">
+            <h1 style="font-size:34px;">⭐ User Reviews</h1>
+            <p style="margin-bottom:0;">Real feedback from our verified traders across Kenya and beyond</p>
+        </div>
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:14px;padding:24px;margin-bottom:20px;text-align:center;">
+            <div style="font-size:64px;font-weight:900;color:var(--accent-yellow);font-family:'JetBrains Mono',monospace;line-height:1;">4.9</div>
+            <div style="font-size:28px;margin:8px 0;">⭐⭐⭐⭐⭐</div>
+            <div style="font-size:14px;color:var(--text-secondary);">Based on 2,847 verified reviews</div>
+        </div>
+        <div class="winners-grid" id="reviewsGrid"></div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<!-- PROFILE LAYER -->
+<div id="profileLayer" class="layer">
+    <nav class="navbar">
+        <div class="logo" onclick="showLayer('dashboardLayer')"><div class="logo-icon">₿</div>CryptoPro</div>
+        <div class="nav-links"><button class="nav-btn btn-login" onclick="showLayer('dashboardLayer')">← Dashboard</button></div>
+    </nav>
+    <div class="container">
+        <div class="hero-section" style="padding:22px 28px;">
+            <h1 style="font-size:34px;">⚙️ Profile Settings</h1>
+            <p style="margin-bottom:0;">Manage your account information and security settings</p>
+        </div>
+        <div class="chart-section">
+            <form id="profileForm" onsubmit="return updateProfile(event)">
+                <div class="form-group"><label>Full Name</label><input type="text" id="profileName" required></div>
+                <div class="form-group"><label>Email Address</label><input type="email" id="profileEmail" required></div>
+                <div class="form-group"><label>Phone Number</label><input type="tel" id="profilePhone" required></div>
+                <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px;margin-bottom:18px;">
+                    <div style="font-size:13px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">🔒 Change Password</div>
+                    <div class="form-group" style="margin-bottom:12px;"><label>Current Password</label><input type="password" id="profileCurrentPassword" placeholder="Leave blank to keep unchanged"></div>
+                    <div class="form-group" style="margin:0;"><label>New Password</label><input type="password" id="profileNewPassword" placeholder="Enter new password"></div>
+                </div>
+                <button type="submit" class="btn-submit">💾 Save Profile Changes</button>
+            </form>
+            <div style="margin-top:28px;padding-top:24px;border-top:1px solid var(--border-color);">
+                <div class="section-title">Account Information</div>
+                <div class="profile-info-box">
+                    <div class="profile-info-row"><div class="profile-info-label">Account ID</div><div class="profile-info-value" id="accountId" style="font-family:'JetBrains Mono',monospace;font-size:13px;">—</div></div>
+                    <div class="profile-info-row"><div class="profile-info-label">Member Since</div><div class="profile-info-value" id="memberSince">—</div></div>
+                    <div class="profile-info-row"><div class="profile-info-label">Verification</div><div class="verified-badge">✓ Fully Verified</div></div>
+                    <div class="profile-info-row"><div class="profile-info-label">Account Type</div><div class="profile-info-value">Standard Trader</div></div>
+                    <div class="profile-info-row"><div class="profile-info-label">2FA Security</div><div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:var(--accent-green-dim);border:1px solid rgba(14,203,129,0.3);border-radius:20px;font-size:12px;font-weight:700;color:var(--accent-green);">🔒 Enabled</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="whatsapp-support"><a href="https://wa.me/254759401893" class="whatsapp-btn" target="_blank"><span style="font-size:24px;">💬</span> Support</a></div>
+</div>
+
+<script src="https://s3.tradingview.com/tv.js"></script>
+<script>
+const API_BASE_URL = 'https://YOUR-BACKEND.vercel.app';
+let currentUser = null, currentLayer = 'welcomeLayer', selectedPaymentMethod = '', selectedWithdrawMethod = '', selectedTradeType = 'buy', currentAccountMode = 'demo', currentBTCPrice = 98245.50, currentTradePair = 'BTCUSDT', currentTradePairLabel = 'BTC/USDT', currentTradePairSub = 'Bitcoin / USDT', tvCharts = {}, winnerQueue = [], winnerQueueIndex = 0, countdownEnd = null;
+let userLocation = { country:'Kenya', currency:'KES', rate:130, city:'Nairobi' };
+let notifications = [
+    { title:'🎉 Welcome Bonus Credited', desc:'$25 demo bonus added to your account', time:'Just now', unread:true },
+    { title:'📈 Market Alert: BTC +3.2%', desc:'Bitcoin surged 3.2% in the last hour', time:'5 min ago', unread:true },
+    { title:'🤖 Bot Trade Completed', desc:'Scalper Pro closed a profitable trade +$12.50', time:'12 min ago', unread:true }
+];
+let activeBots = new Set();
+
+document.addEventListener('DOMContentLoaded', () => {
+    generateLiveTraders(); generateTopWinners(); generateReviews(); generateBots();
+    generateActiveBotsPanel(); generateBotStats(); generateMarketTicker();
+    startCountdown(); startViewingCounterFlicker(); detectUserLocation();
+    buildWinnerQueue(); renderNotifications(); animateStats(); checkReferralCode();
+    setTimeout(startLiveWinnerToasts, 6000);
+    setInterval(updatePricesSimulated, 3000);
+    setInterval(updateOrderBook, 2000);
+    setInterval(animateStats, 30000);
+});
+
+function loadTVChart(containerId, symbol, height, compact) {
+    const el = document.getElementById(containerId);
+    if(!el || tvCharts[containerId]) return;
+    try {
+        tvCharts[containerId] = new TradingView.widget({
+            symbol:'BINANCE:'+symbol, interval:compact?'5':'15', timezone:'Etc/UTC',
+            theme:'dark', style:'1', locale:'en', toolbar_bg:'#0D1421',
+            backgroundColor:'#060B11', enable_publishing:false, allow_symbol_change:false,
+            save_image:false, container_id:containerId, width:'100%', height:height,
+            hide_side_toolbar:compact, hide_top_toolbar:compact, hide_legend:compact,
+            studies:compact?[]:['RSI@tv-basicstudies','MACD@tv-basicstudies']
+        });
+    } catch(e) {
+        el.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:${height}px;color:var(--text-secondary);flex-direction:column;gap:10px;"><div style="font-size:32px;">📈</div><div>Chart loading...</div></div>`;
+    }
+}
+
+function loadChartsForLayer(layer) {
+    if(layer==='chartsLayer') setTimeout(()=>loadTVChart('tv_chart_main','BTCUSDT',500,false),400);
+    if(layer==='tradingLayer') setTimeout(()=>loadTVChart('tv_chart_trade',currentTradePair,420,false),400);
+    if(layer==='dashboardLayer') setTimeout(()=>loadTVChart('tv_chart_dash','BTCUSDT',280,true),400);
+}
+
+const TICKER_DATA = [
+    {sym:'BTC/USDT',price:98245.50,chg:+2.45},{sym:'ETH/USDT',price:3842.20,chg:+1.87},
+    {sym:'BNB/USDT',price:612.80,chg:+0.94},{sym:'SOL/USDT',price:198.45,chg:+4.12},
+    {sym:'ADA/USDT',price:0.612,chg:-0.38},{sym:'XRP/USDT',price:2.145,chg:+3.22},
+    {sym:'DOGE/USDT',price:0.389,chg:+5.11},{sym:'DOT/USDT',price:8.94,chg:-1.05},
+    {sym:'AVAX/USDT',price:42.80,chg:+2.78},{sym:'LINK/USDT',price:22.45,chg:+1.56},
+    {sym:'MATIC/USDT',price:1.12,chg:-0.82},{sym:'UNI/USDT',price:14.30,chg:+2.10}
+];
+
+function generateMarketTicker() {
+    const track = document.getElementById('marketTickerTrack');
+    if(!track) return;
+    let html = '';
+    const items = [...TICKER_DATA,...TICKER_DATA];
+    items.forEach(t => {
+        const pos = t.chg >= 0;
+        const price = t.price > 100 ? t.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : t.price.toFixed(t.price<1?4:2);
+        html += `<div class="ticker-item"><span class="ticker-symbol">${t.sym}</span><span class="ticker-price">$${price}</span><span class="ticker-change ${pos?'pos':'neg'}">${pos?'+':''}${t.chg}%</span></div>`;
+    });
+    track.innerHTML = html;
+    setInterval(()=>{ TICKER_DATA.forEach(t=>{ t.price+=(Math.random()-0.5)*t.price*0.002; t.chg+=(Math.random()-0.5)*0.1; }); generateMarketTicker(); }, 4000);
+}
+
+function startCountdown() {
+    const stored = localStorage.getItem('cryptoproCountdownEnd');
+    countdownEnd = stored ? parseInt(stored) : Date.now()+(23*3600+47*60)*1000;
+    if(!stored) localStorage.setItem('cryptoproCountdownEnd', countdownEnd);
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
+
+function updateCountdown() {
+    const remaining = Math.max(0, countdownEnd - Date.now());
+    const h = Math.floor(remaining/3600000), m = Math.floor((remaining%3600000)/60000), s = Math.floor((remaining%60000)/1000);
+    const fmt = n => String(n).padStart(2,'0');
+    ['cdHours','cdHours2'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=fmt(h); });
+    ['cdMins','cdMins2'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=fmt(m); });
+    ['cdSecs','cdSecs2'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=fmt(s); });
+}
+
+function startViewingCounterFlicker() {
+    function flicker(id, base) {
+        const el = document.getElementById(id); if(!el) return;
+        el.textContent = base;
+        setInterval(()=>{ el.textContent = Math.max(10, parseInt(el.textContent)+(Math.floor(Math.random()*8)-3)); }, 3000+Math.random()*2000);
+    }
+    flicker('viewingCount',47); flicker('depositViewers',23);
+}
+
+function animateStats() {
+    const t = document.getElementById('statTraders'); const tr = document.getElementById('statTrades');
+    if(t) t.textContent = (50000+Math.floor(Math.random()*500)).toLocaleString()+'+';
+    if(tr) tr.textContent = (15000+Math.floor(Math.random()*500)).toLocaleString()+'+';
+}
+
+const TRADER_NAMES = [
+    ['Sarah K.','🇰🇪'],['John M.','🇳🇬'],['Michael K.','🇰🇪'],['Emma W.','🇬🇧'],
+    ['David L.','🇦🇪'],['Lisa T.','🇺🇸'],['James R.','🇦🇺'],['Maria G.','🇪🇸'],
+    ['Grace W.','🇰🇪'],['Brian O.','🇰🇪'],['Peter N.','🇹🇿'],['Lucy M.','🇰🇪'],
+    ['Hassan A.','🇪🇬'],['Sophie L.','🇫🇷'],['Carlos R.','🇪🇸'],['Yuki T.','🇯🇵']
+];
+const EMOJIS = ['💰','💎','🚀','⭐','✨','🔥','💫','⚡','🏆','🎯'];
+
+function generateLiveTraders() {
+    const container = document.getElementById('liveTradersTicker'); if(!container) return;
+    let html = '';
+    for(let i=0;i<40;i++){
+        const [name,flag] = TRADER_NAMES[i%TRADER_NAMES.length];
+        const profit = (Math.random()*900+50).toFixed(2);
+        const emoji = EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+        html += `<div class="trader-card"><div class="trader-avatar">${emoji}</div><div><div class="trader-name">${name} ${flag}</div><div class="trader-profit">+$${profit}</div></div></div>`;
+    }
+    container.innerHTML = html+html;
+}
+
+const ALL_WINNERS = [
+    {name:'Alex Thompson',loc:'Nairobi, Kenya',flag:'🇰🇪',profit:12450,trades:847,join:'Jan 2024',emoji:'👑',winRate:94},
+    {name:'Sarah Johnson',loc:'Lagos, Nigeria',flag:'🇳🇬',profit:10230,trades:692,join:'Feb 2024',emoji:'⭐',winRate:91},
+    {name:'David Chen',loc:'London, UK',flag:'🇬🇧',profit:9875,trades:618,join:'Mar 2024',emoji:'💎',winRate:89},
+    {name:'Maria Garcia',loc:'Dubai, UAE',flag:'🇦🇪',profit:8650,trades:571,join:'Mar 2024',emoji:'🚀',winRate:87},
+    {name:'James Wilson',loc:'New York, USA',flag:'🇺🇸',profit:7920,trades:534,join:'Apr 2024',emoji:'✨',winRate:86},
+    {name:'Emma Brown',loc:'Sydney, Australia',flag:'🇦🇺',profit:7340,trades:489,join:'Apr 2024',emoji:'🔥',winRate:85},
+    {name:'Mohammed Ali',loc:'Cairo, Egypt',flag:'🇪🇬',profit:6890,trades:456,join:'May 2024',emoji:'💫',winRate:84},
+    {name:'Sophie Martin',loc:'Paris, France',flag:'🇫🇷',profit:6450,trades:423,join:'May 2024',emoji:'⚡',winRate:83},
+    {name:'Grace Wanjiku',loc:'Nakuru, Kenya',flag:'🇰🇪',profit:5640,trades:341,join:'Jul 2024',emoji:'🏆',winRate:80},
+    {name:'Brian Otieno',loc:'Kisumu, Kenya',flag:'🇰🇪',profit:5380,trades:318,join:'Jul 2024',emoji:'🎯',winRate:79},
+    {name:'Peter Mwangi',loc:'Thika, Kenya',flag:'🇰🇪',profit:4340,trades:238,join:'Oct 2024',emoji:'💎',winRate:74},
+    {name:'Lucy Akinyi',loc:'Mombasa, Kenya',flag:'🇰🇪',profit:4120,trades:224,join:'Oct 2024',emoji:'👑',winRate:73}
+];
+let winnersShownSet = new Set();
+
+function generateTopWinners() {
+    const container = document.getElementById('topWinnersGrid'); if(!container) return;
+    let pool = ALL_WINNERS.filter((_,i)=>!winnersShownSet.has(i));
+    if(pool.length<6){ winnersShownSet.clear(); pool=[...ALL_WINNERS]; }
+    const picked=[], poolCopy=[...pool];
+    while(picked.length<6&&poolCopy.length>0){
+        const idx=Math.floor(Math.random()*poolCopy.length);
+        picked.push(poolCopy[idx]); winnersShownSet.add(ALL_WINNERS.indexOf(poolCopy[idx])); poolCopy.splice(idx,1);
+    }
+    container.innerHTML = picked.map((w,i)=>`<div class="winner-card"><div class="winner-rank">${i+1}</div><div class="winner-header"><div class="winner-avatar">${w.emoji}</div><div><div class="winner-name">${w.name}</div><div class="winner-location">${w.flag} ${w.loc}</div><div class="winner-join">Member since ${w.join}</div></div></div><div class="winner-stats"><div class="winner-stat"><div class="winner-stat-label">Total Profit</div><div class="winner-stat-value">$${(w.profit+Math.floor(Math.random()*600)-200).toLocaleString()}</div></div><div class="winner-stat"><div class="winner-stat-label">Win Rate</div><div class="winner-stat-value">${w.winRate}%</div></div><div class="winner-stat"><div class="winner-stat-label">Trades</div><div class="winner-stat-value">${w.trades+Math.floor(Math.random()*30)}</div></div><div class="winner-stat"><div class="winner-stat-label">Status</div><div class="winner-stat-value" style="font-size:12px;color:var(--accent-green);">🟢 Active</div></div></div></div>`).join('');
+    setTimeout(generateTopWinners, 30000);
+}
+
+const ALL_LIVE_WINNERS = [
+    {name:'Sarah K.',flag:'🇰🇪',amount:145.50,action:'won'},{name:'John M.',flag:'🇳🇬',amount:289.30,action:'won'},
+    {name:'David L.',flag:'🇬🇧',amount:420.80,action:'won'},{name:'Peter K.',flag:'🇰🇪',amount:500.00,action:'withdrew'},
+    {name:'Lucy A.',flag:'🇰🇪',amount:750.00,action:'withdrew'},{name:'Brian O.',flag:'🇰🇪',amount:230.10,action:'won'},
+    {name:'Grace W.',flag:'🇰🇪',amount:410.60,action:'won'},{name:'Sophie M.',flag:'🇫🇷',amount:315.75,action:'won'},
+    {name:'Carlos R.',flag:'🇪🇸',amount:488.20,action:'won'},{name:'Kim P.',flag:'🇰🇷',amount:890.50,action:'withdrew'},
+    {name:'Yuki T.',flag:'🇯🇵',amount:265.80,action:'won'},{name:'Amara D.',flag:'🇸🇳',amount:183.40,action:'won'},
+    {name:'Michael K.',flag:'🇰🇪',amount:540.00,action:'won'},{name:'Fatima A.',flag:'🇳🇬',amount:460.00,action:'won'}
+];
+
+function buildWinnerQueue() {
+    winnerQueue=[...ALL_LIVE_WINNERS];
+    for(let i=winnerQueue.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [winnerQueue[i],winnerQueue[j]]=[winnerQueue[j],winnerQueue[i]]; }
+    winnerQueueIndex=0;
+}
+
+function startLiveWinnerToasts(){ showNextWinnerToast(); }
+
+function showNextWinnerToast(){
+    if(winnerQueueIndex>=winnerQueue.length){ buildWinnerQueue(); }
+    showLiveWinnerToast(winnerQueue[winnerQueueIndex++]);
+    setTimeout(showNextWinnerToast, 10000+Math.random()*15000);
+}
+
+function showLiveWinnerToast(winner){
+    const existing=document.querySelector('.live-winner-toast');
+    if(existing){ existing.classList.add('hiding'); setTimeout(()=>existing.remove(),400); }
+    const isWin=winner.action==='won';
+    const toast=document.createElement('div');
+    toast.className='live-winner-toast';
+    toast.innerHTML=`<div class="winner-toast-avatar">${isWin?'🎉':'💸'}</div><div style="flex:1;"><div class="winner-toast-name">${winner.name} ${winner.flag}</div><div class="winner-toast-amount">${isWin?'+':''}$${(winner.amount+(Math.random()-0.5)*20).toFixed(2)}</div><div class="winner-toast-action">${isWin?'✅ Just won from trading':'💸 Successfully withdrew'}</div></div><button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text-muted);font-size:16px;cursor:pointer;padding:0 0 0 8px;align-self:flex-start;">×</button>`;
+    document.body.appendChild(toast);
+    setTimeout(()=>{ if(toast.parentNode){ toast.classList.add('hiding'); setTimeout(()=>{ if(toast.parentNode) toast.remove(); },400); } },7000);
+}
+
+function updateOrderBook(){
+    const askEl=document.getElementById('asksContainer'), bidEl=document.getElementById('bidsContainer');
+    if(!askEl||!bidEl) return;
+    const base=currentBTCPrice;
+    let askHtml='', bidHtml='';
+    for(let i=9;i>=0;i--){
+        const price=base+(i+1)*(Math.random()*12+3), amount=(Math.random()*3+0.05).toFixed(4), total=(price*parseFloat(amount)), barW=Math.random()*85+10;
+        askHtml+=`<div class="orderbook-row ask-row"><div class="orderbook-bar" style="width:${barW}%"></div><span class="ask-price">$${price.toFixed(1)}</span><span class="ob-amount">${amount}</span><span class="ob-total">$${total.toFixed(0)}</span></div>`;
+    }
+    askHtml+=`<div style="text-align:center;padding:8px;font-size:12px;font-family:'JetBrains Mono',monospace;background:rgba(252,213,53,0.08);border-radius:4px;margin:4px 0;color:var(--accent-yellow);">Spread: $${(Math.random()*5+1).toFixed(1)} | $${base.toFixed(2)}</div>`;
+    for(let i=0;i<10;i++){
+        const price=base-(i+1)*(Math.random()*12+3), amount=(Math.random()*3+0.05).toFixed(4), total=(price*parseFloat(amount)), barW=Math.random()*85+10;
+        bidHtml+=`<div class="orderbook-row bid-row"><div class="orderbook-bar" style="width:${barW}%"></div><span class="bid-price">$${price.toFixed(1)}</span><span class="ob-amount">${amount}</span><span class="ob-total">$${total.toFixed(0)}</span></div>`;
+    }
+    askEl.innerHTML=askHtml; bidEl.innerHTML=bidHtml;
+}
+
+let prevBTCPrice=98245.50;
+function updatePricesSimulated(){
+    prevBTCPrice=currentBTCPrice;
+    currentBTCPrice+=((Math.random()-0.48)*150);
+    currentBTCPrice=Math.max(90000,Math.min(105000,currentBTCPrice));
+    const chgPct=((currentBTCPrice-96000)/96000*100), pos=currentBTCPrice>=prevBTCPrice;
+    const fmt=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    ['currentPrice','tradePrice'].forEach(id=>{
+        const el=document.getElementById(id); if(!el) return;
+        el.textContent=fmt(currentBTCPrice);
+        el.classList.remove('flash-up','flash-down'); void el.offsetWidth;
+        el.classList.add(pos?'flash-up':'flash-down');
+    });
+    setEl('entryPriceDisplay',fmt(currentBTCPrice));
+    ['priceChange','tradePriceChange'].forEach(id=>{
+        const el=document.getElementById(id); if(!el) return;
+        el.textContent=`${chgPct>=0?'+':''}${chgPct.toFixed(2)}%`;
+        el.className=`price-change ${chgPct>=0?'positive':'negative'}`;
+    });
+    setEl('chartHigh',fmt(currentBTCPrice+Math.random()*600+100));
+    setEl('chartLow',fmt(currentBTCPrice-Math.random()*600-100));
+    setEl('chartVolume',`${(Math.random()*12+22).toFixed(1)}B`);
+    setEl('chartOpen',fmt(currentBTCPrice-(Math.random()-0.5)*300));
+    setEl('chartClose',fmt(currentBTCPrice));
+    setEl('chart24h',`${chgPct>=0?'+':''}${chgPct.toFixed(2)}%`);
+    const h24=document.getElementById('chart24h'); if(h24) h24.style.color=chgPct>=0?'var(--accent-green)':'var(--accent-red)';
+    updatePositionSize();
+}
+
+function setEl(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
+
+function selectChartPair(btn,symbol,label,sub){
+    document.querySelectorAll('#chartPairsSelector .pair-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); setEl('chartPairLabel',label); setEl('currentPairSub',sub);
+    const el=document.getElementById('tv_chart_main');
+    if(el){ el.innerHTML=''; delete tvCharts['tv_chart_main']; }
+    loadTVChart('tv_chart_main',symbol,500,false);
+}
+
+function selectTradePair(btn,symbol,label,sub){
+    document.querySelectorAll('#tradingLayer .pair-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); currentTradePair=symbol; currentTradePairLabel=label; currentTradePairSub=sub;
+    setEl('tradePairLabel',label); setEl('tradePairSub',sub);
+    const el=document.getElementById('tv_chart_trade');
+    if(el){ el.innerHTML=''; delete tvCharts['tv_chart_trade']; }
+    loadTVChart('tv_chart_trade',symbol,420,false);
+}
+
+function selectTradeType(type){
+    selectedTradeType=type;
+    const buyBtn=document.getElementById('buyBtn'), sellBtn=document.getElementById('sellBtn'), submitBtn=document.getElementById('tradeSubmitBtn');
+    if(type==='buy'){
+        buyBtn.style.background='var(--accent-green-dim)'; buyBtn.style.borderColor='var(--accent-green)'; buyBtn.style.color='var(--accent-green)';
+        sellBtn.style.background=''; sellBtn.style.borderColor='var(--border-color)'; sellBtn.style.color='var(--text-primary)';
+        submitBtn.style.background='linear-gradient(135deg,var(--accent-green),#08A566)'; submitBtn.style.color='#000'; submitBtn.textContent='🚀 Execute Buy / Long';
+    } else {
+        sellBtn.style.background='var(--accent-red-dim)'; sellBtn.style.borderColor='var(--accent-red)'; sellBtn.style.color='var(--accent-red)';
+        buyBtn.style.background=''; buyBtn.style.borderColor='var(--border-color)'; buyBtn.style.color='var(--text-primary)';
+        submitBtn.style.background='linear-gradient(135deg,var(--accent-red),#c92a40)'; submitBtn.style.color='#fff'; submitBtn.textContent='📉 Execute Sell / Short';
+    }
+}
+
+function updatePositionSize(){
+    const amount=parseFloat(document.getElementById('tradeAmount')?.value)||0;
+    const leverage=parseFloat(document.getElementById('tradeLeverage')?.value)||1;
+    const pos=amount*leverage;
+    let liqPrice;
+    if(leverage>1){ const mm=0.005; liqPrice=selectedTradeType==='buy'?currentBTCPrice*(1-(1/leverage)+mm):currentBTCPrice*(1+(1/leverage)-mm); }
+    setEl('positionSizeDisplay','$'+pos.toFixed(2));
+    setEl('liquidationDisplay',leverage>1?'$'+liqPrice.toFixed(0):'—');
+    setEl('entryPriceDisplay','$'+currentBTCPrice.toLocaleString('en-US',{minimumFractionDigits:2}));
+}
+
+const BOTS_DATA = [
+    {name:'Scalper Pro',emoji:'🎯',desc:'High-Frequency Trading — 50+ trades/day',winRate:87,avgDaily:3.2,color:'var(--accent-green)',minBalance:10},
+    {name:'Trend Master',emoji:'📊',desc:'Follow Market Trends — Swing trading',winRate:82,avgDaily:2.8,color:'var(--accent-blue)',minBalance:50},
+    {name:'Grid Trader',emoji:'💎',desc:'Range Trading Strategy — Low risk',winRate:79,avgDaily:2.5,color:'var(--accent-yellow)',minBalance:100},
+    {name:'Arbitrage AI',emoji:'⚡',desc:'Cross-Exchange Profits — Premium bot',winRate:91,avgDaily:4.1,color:'var(--accent-red)',minBalance:200}
+];
+
+function generateBots(){
+    const container=document.getElementById('botsGrid'); if(!container) return;
+    container.innerHTML=BOTS_DATA.map(bot=>`<div class="bot-card"><div style="text-align:center;margin-bottom:16px;"><div style="font-size:44px;margin-bottom:8px;">${bot.emoji}</div><div style="font-size:18px;font-weight:700;color:${bot.color};">${bot.name}</div><div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">${bot.desc}</div><div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Min Balance: $${bot.minBalance}</div></div><div class="winner-stats" style="margin-bottom:16px;"><div class="winner-stat"><div class="winner-stat-label">Win Rate</div><div class="winner-stat-value">${bot.winRate}%</div></div><div class="winner-stat"><div class="winner-stat-label">Avg Daily</div><div class="winner-stat-value">+${bot.avgDaily}%</div></div></div><button class="btn-submit" id="botBtn_${bot.name.replace(' ','_')}" onclick="activateBot('${bot.name}',this)">🚀 Activate Bot</button></div>`).join('');
+}
+
+function generateActiveBotsPanel(){
+    const container=document.getElementById('activeBotsContainer'); if(!container) return;
+    const bots=[{name:'Scalper Pro',country:'🇰🇪 Kenya',trades:47,profit:234.50,winRate:87},{name:'Trend Master',country:'🇳🇬 Nigeria',trades:23,profit:189.30,winRate:82},{name:'Grid Trader',country:'🇬🇧 UK',trades:31,profit:156.80,winRate:79},{name:'Arbitrage AI',country:'🇦🇪 UAE',trades:19,profit:298.40,winRate:91}];
+    container.innerHTML=bots.map(bot=>`<div class="active-bot-item running"><div class="active-bot-bar"><div><div style="font-size:15px;font-weight:700;">${bot.name}</div><div style="font-size:11px;color:var(--text-secondary);margin-top:3px;">🟢 Running • ${bot.trades} trades today • ${bot.country}</div></div><button onclick="pauseBot('${bot.name}',this)" style="padding:7px 16px;border:1px solid var(--accent-red);border-radius:8px;background:var(--accent-red-dim);color:var(--accent-red);font-size:12px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;">⏸ Pause</button></div><div class="active-bot-stats"><div class="active-bot-stat"><div class="active-bot-stat-label">Today's Profit</div><div class="active-bot-stat-value" style="color:var(--accent-green);">+$${bot.profit.toFixed(2)}</div></div><div class="active-bot-stat"><div class="active-bot-stat-label">Win Rate</div><div class="active-bot-stat-value" style="color:var(--accent-blue);">${bot.winRate}%</div></div><div class="active-bot-stat"><div class="active-bot-stat-label">Trades</div><div class="active-bot-stat-value">${bot.trades}</div></div></div></div>`).join('');
+    setInterval(()=>{ bots.forEach(b=>{ b.profit+=Math.random()*5; b.trades+=Math.random()>0.7?1:0; }); if(document.getElementById('activeBotsContainer')) generateActiveBotsPanel(); },8000);
+}
+
+function generateBotStats(){
+    const c=document.getElementById('botStatsGrid'); if(!c) return;
+    c.innerHTML=[{icon:'📊',value:'120',label:'Total Trades'},{icon:'💰',value:'$878.60',label:'Total Profit'},{icon:'🎯',value:'84.7%',label:'Avg Win Rate'},{icon:'🤖',value:'4',label:'Active Bots'}].map(s=>`<div class="stat-card"><div class="stat-icon">${s.icon}</div><div class="stat-value" style="font-size:22px;">${s.value}</div><div class="stat-label">${s.label}</div></div>`).join('');
+}
+
+function activateBot(name,btn){
+    if(!currentUser){ showToast('Please login first!'); return; }
+    const bal=currentAccountMode==='demo'?currentUser.demoBalance:currentUser.realBalance;
+    const bot=BOTS_DATA.find(b=>b.name===name);
+    if(bot&&bal<bot.minBalance){ showToast(`⚠️ Minimum $${bot.minBalance} balance required!\n\nPlease deposit first.`); return; }
+    activeBots.add(name);
+    if(btn){ btn.textContent='✅ Bot Active'; btn.style.background='linear-gradient(135deg,#10b981,#059669)'; }
+    showToast(`🤖 ${name} ACTIVATED!\n\n✅ Bot is now trading automatically\n💰 Profits added to your balance\n\nRelax and let AI work for you! 🚀`);
+    addNotification(`🤖 ${name} Activated`,`Bot is now trading automatically`);
+    setTimeout(()=>simulateBotTrade(name), Math.random()*30000+20000);
+}
+
+function pauseBot(name,btn){
+    activeBots.delete(name);
+    if(btn){ btn.textContent='▶ Resume'; btn.style.background='var(--accent-green-dim)'; btn.style.borderColor='var(--accent-green)'; btn.style.color='var(--accent-green)'; }
+    showToast(`⏸ ${name} paused!`);
+}
+
+function simulateBotTrade(botName){
+    if(!currentUser||!activeBots.has(botName)) return;
+    const bal=currentAccountMode==='demo'?currentUser.demoBalance:currentUser.realBalance;
+    if(bal<10) return;
+    const amount=Math.min(Math.random()*30+10,bal*0.1);
+    const leverage=Math.floor(Math.random()*5)+5;
+    const type=Math.random()>0.5?'buy':'sell';
+    const isWin=Math.random()<0.72;
+    const profit=amount*(Math.random()*0.04+0.01)*(isWin?1:-1)*leverage;
+    if(currentAccountMode==='demo') currentUser.demoBalance+=profit;
+    else currentUser.realBalance+=profit;
+    currentUser.totalProfit=(currentUser.totalProfit||0)+profit;
+    localStorage.setItem('cryptoproUser',JSON.stringify(currentUser));
+    if(profit>0) launchConfetti();
+    showToast(`🤖 ${botName} Trade!\n\n${type==='buy'?'📈 LONG':'📉 SHORT'} BTC/USDT\n\n${profit>0?'🎉 PROFIT: +$'+profit.toFixed(2):'❌ LOSS: -$'+Math.abs(profit).toFixed(2)}`);
+    addNotification(`🤖 ${botName} Trade`,`${profit>0?'+':''}$${profit.toFixed(2)} ${type.toUpperCase()} BTC/USDT`);
+    if(currentLayer==='dashboardLayer') updateDashboard();
+    if(activeBots.has(botName)) setTimeout(()=>simulateBotTrade(botName),Math.random()*40000+20000);
+}
+
+const REVIEWS = [
+    {name:'Michael Roberts',loc:'Nairobi, Kenya',flag:'🇰🇪',rating:5,date:'2 days ago',text:'Best trading platform I\'ve ever used! Made $5,000 in my first month. The AI bots are incredible!',verified:true},
+    {name:'Sarah Mitchell',loc:'Mombasa, Kenya',flag:'🇰🇪',rating:5,date:'5 days ago',text:'Finally a platform that actually pays! Withdrew $3,500 and received within 15 minutes!',verified:true},
+    {name:'David Kimani',loc:'Kisumu, Kenya',flag:'🇰🇪',rating:5,date:'1 week ago',text:'Started with $100, now my balance is $2,800! The Scalper Pro bot is amazing.',verified:true},
+    {name:'Grace Wanjiku',loc:'Nakuru, Kenya',flag:'🇰🇪',rating:5,date:'1 week ago',text:'Easiest money I\'ve ever made. Platform is super user-friendly and withdrawals are fast!',verified:true},
+    {name:'John Ochieng',loc:'Eldoret, Kenya',flag:'🇰🇪',rating:5,date:'2 weeks ago',text:'3 months of consistent daily profits. Referred 5 friends and earn 10% from all their deposits!',verified:true},
+    {name:'Lucy Akinyi',loc:'Nairobi, Kenya',flag:'🇰🇪',rating:5,date:'2 weeks ago',text:'Withdrawn over $10,000 with zero issues. CryptoPro has genuinely changed my financial situation!',verified:true},
+    {name:'Peter Mwangi',loc:'Thika, Kenya',flag:'🇰🇪',rating:5,date:'3 weeks ago',text:'Was skeptical at first but made $1,200 in my first week! The AI is incredibly accurate.',verified:true},
+    {name:'Brian Otieno',loc:'Kisii, Kenya',flag:'🇰🇪',rating:5,date:'1 month ago',text:'CryptoPro literally changed my life! From struggling to pay bills to making $500 daily!',verified:true}
+];
+
+
+function generateReviews() {
+    const container = document.getElementById('reviewsGrid');
+    if (!container) return;
+    container.innerHTML = REVIEWS.map(r => `
+        <div class="winner-card">
+            <div class="winner-header">
+                <div class="winner-avatar" style="font-size:20px;">👤</div>
+                <div>
+                    <div class="winner-name">${r.name} ${r.verified ? '<span style="color:var(--accent-green);font-size:14px;">✓</span>' : ''}</div>
+                    <div class="winner-location">${r.flag} ${r.loc}</div>
+                    <div class="winner-join">${r.date}</div>
+                </div>
+            </div>
+            <div style="color:var(--accent-yellow);font-size:16px;margin-bottom:10px;">${'⭐'.repeat(r.rating)}</div>
+            <div style="font-size:13px;color:var(--text-primary);line-height:1.6;font-style:italic;">"${r.text}"</div>
+        </div>`).join('');
+}
+
+/* ─────────────────────────────────────────────
+   LAYER NAVIGATION
+───────────────────────────────────────────── */
+function showLayer(id) {
+    document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    currentLayer = id;
+    window.scrollTo(0, 0);
+
+    const aiBtn = document.getElementById('aiAssistantBtn');
+    const loggedInLayers = ['dashboardLayer','tradingLayer','depositLayer','withdrawalLayer','botsLayer','historyLayer','referralLayer','profileLayer'];
+    if (aiBtn) aiBtn.style.display = loggedInLayers.includes(id) ? 'block' : 'none';
+
+    loadChartsForLayer(id);
+
+    if (id === 'dashboardLayer') updateDashboard();
+    if (id === 'tradingLayer') {
+        updateOrderBook();
+        setEl('tradeAvailableBalance', '$' + (currentAccountMode === 'demo' ? (currentUser?.demoBalance || 0) : (currentUser?.realBalance || 0)).toFixed(2));
+    }
+    if (id === 'withdrawalLayer') updateWithdrawalPage();
+    if (id === 'referralLayer') updateReferralPage();
+    if (id === 'historyLayer') generateTradeHistory();
+    if (id === 'profileLayer') populateProfileForm();
+}
+
+/* ─────────────────────────────────────────────
+   ACCOUNT MODE
+───────────────────────────────────────────── */
+function switchAccount(mode) {
+    currentAccountMode = mode;
+    const demoBtn = document.getElementById('switchToDemo');
+    const realBtn = document.getElementById('switchToReal');
+    const indicator = document.getElementById('accountModeIndicator');
+
+    if (mode === 'demo') {
+        demoBtn.classList.add('active'); realBtn.classList.remove('active');
+        if (indicator) indicator.innerHTML = `<div style="background:rgba(14,203,129,0.08);border:1px solid rgba(14,203,129,0.2);border-radius:10px;padding:10px 16px;font-size:13px;color:var(--accent-green);font-weight:600;">📊 Demo Mode — Practice with virtual funds. No real money at risk.</div>`;
+    } else {
+        realBtn.classList.add('active'); demoBtn.classList.remove('active');
+        if (indicator) indicator.innerHTML = `<div style="background:rgba(246,70,93,0.08);border:1px solid rgba(246,70,93,0.2);border-radius:10px;padding:10px 16px;font-size:13px;color:var(--accent-red);font-weight:600;">💎 Real Mode — Live funds. All profits & losses are real.</div>`;
+    }
+    updateDashboard();
+}
+
+/* ─────────────────────────────────────────────
+   DASHBOARD
+───────────────────────────────────────────── */
+function updateDashboard() {
+    if (!currentUser) return;
+    const isDemo = currentAccountMode === 'demo';
+    const balance = isDemo ? (currentUser.demoBalance || 25) : (currentUser.realBalance || 0);
+    const profit = currentUser.totalProfit || 0;
+
+    setEl('userName', currentUser.name || 'Trader');
+    setEl('userEmail', currentUser.email || '');
+    setEl('accountTypeLabel', isDemo ? 'DEMO' : 'REAL');
+    setEl('dashBalance', '$' + balance.toFixed(2));
+    setEl('dashAvailable', '$' + balance.toFixed(2));
+    setEl('dashInTrades', '$0.00');
+    setEl('dashProfit', (profit >= 0 ? '+$' : '-$') + Math.abs(profit).toFixed(2));
+}
+
+/* ─────────────────────────────────────────────
+   AUTH — SIGNUP
+───────────────────────────────────────────── */
+function handleSignup(e) {
+    e.preventDefault();
+    const name     = document.getElementById('signupName').value.trim();
+    const email    = document.getElementById('signupEmail').value.trim();
+    const phone    = document.getElementById('signupPhone').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const confirm  = document.getElementById('signupConfirm').value;
+    const refCode  = document.getElementById('signupReferralCode').value.trim();
+    const alertEl  = document.getElementById('signupAlert');
+
+    function showAlert(msg, type) {
+        alertEl.textContent = msg;
+        alertEl.className = `alert alert-${type} show`;
+        setTimeout(() => alertEl.classList.remove('show'), 5000);
+    }
+
+    if (password !== confirm) { showAlert('❌ Passwords do not match!', 'error'); return false; }
+    if (password.length < 6)  { showAlert('❌ Password must be at least 6 characters.', 'error'); return false; }
+
+    const existingUsers = JSON.parse(localStorage.getItem('cryptoproUsers') || '[]');
+    if (existingUsers.find(u => u.email === email)) { showAlert('❌ Email already registered. Please login.', 'error'); return false; }
+
+    const userId = 'CP' + Date.now().toString(36).toUpperCase();
+    const newUser = {
+        id: userId, name, email, phone, password,
+        demoBalance: 25, realBalance: 0, totalProfit: 0,
+        referralCode: userId, referredBy: refCode || null,
+        referrals: [], totalCommission: 0, shareCount: 0, shareEarnings: 0,
+        tradeHistory: [], memberSince: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    };
+
+    existingUsers.push(newUser);
+    localStorage.setItem('cryptoproUsers', JSON.stringify(existingUsers));
+
+    // Credit referrer
+    if (refCode) {
+        const referrer = existingUsers.find(u => u.referralCode === refCode || u.id === refCode);
+        if (referrer) {
+            referrer.referrals = referrer.referrals || [];
+            referrer.referrals.push({ name, email, joinDate: new Date().toLocaleDateString() });
+            localStorage.setItem('cryptoproUsers', JSON.stringify(existingUsers));
+        }
+    }
+
+    currentUser = newUser;
+    localStorage.setItem('cryptoproUser', JSON.stringify(newUser));
+
+    launchConfetti();
+    showAlert('🎉 Account created! Welcome to CryptoPro!', 'success');
+    setTimeout(() => {
+        showLayer('dashboardLayer');
+        showToast(`🎉 Welcome ${name}!\n\n✅ $25 Demo Bonus Credited!\n💎 Start trading or deposit to go live!`);
+        addNotification('🎉 Welcome Bonus Credited', '$25 demo bonus added to your account');
+    }, 1200);
+
+    return false;
+}
+
+/* ─────────────────────────────────────────────
+   AUTH — LOGIN
+───────────────────────────────────────────── */
+function handleLogin(e) {
+    e.preventDefault();
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const alertEl  = document.getElementById('loginAlert');
+
+    function showAlert(msg, type) {
+        alertEl.textContent = msg;
+        alertEl.className = `alert alert-${type} show`;
+        setTimeout(() => alertEl.classList.remove('show'), 5000);
+    }
+
+    const users = JSON.parse(localStorage.getItem('cryptoproUsers') || '[]');
+    const user  = users.find(u => u.email === email && u.password === password);
+
+    if (!user) { showAlert('❌ Invalid email or password. Please try again.', 'error'); return false; }
+
+    currentUser = user;
+    localStorage.setItem('cryptoproUser', JSON.stringify(user));
+
+    showAlert('✅ Login successful! Redirecting...', 'success');
+    setTimeout(() => {
+        showLayer('dashboardLayer');
+        showToast(`👋 Welcome back, ${user.name}!\n\n💰 Balance: $${(user.realBalance || 0).toFixed(2)}`);
+    }, 800);
+
+    return false;
+}
+
+function handleLogout() {
+    currentUser = null;
+    activeBots.clear();
+    localStorage.removeItem('cryptoproUser');
+    showLayer('welcomeLayer');
+    showToast('👋 Logged out successfully. See you soon!');
+}
+
+/* ─────────────────────────────────────────────
+   DEPOSIT
+───────────────────────────────────────────── */
+function selectPaymentMethod(method, btn) {
+    selectedPaymentMethod = method;
+    document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.payment-details').forEach(d => d.classList.remove('active'));
+    const detail = document.getElementById(method);
+    if (detail) detail.classList.add('active');
+    updateCurrencyConversion();
+}
+
+function updateCurrencyConversion() {
+    const amount = parseFloat(document.getElementById('depositAmount')?.value) || 0;
+    const container = document.getElementById('currencyConverterContainer');
+    if (!container || amount <= 0) { if (container) container.innerHTML = ''; return; }
+
+    const kesAmount  = (amount * userLocation.rate).toFixed(0);
+    const usdtAmount = amount.toFixed(2);
+
+    container.innerHTML = `
+        <div style="background:rgba(252,213,53,0.08);border:1px solid rgba(252,213,53,0.2);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div style="font-size:13px;color:var(--text-secondary);">💱 Amount in KES</div>
+            <div style="font-size:20px;font-weight:900;color:var(--accent-yellow);font-family:'JetBrains Mono',monospace;">KES ${parseInt(kesAmount).toLocaleString()}</div>
+            <div style="font-size:13px;color:var(--text-secondary);">≈ USDT</div>
+            <div style="font-size:20px;font-weight:900;color:var(--accent-green);font-family:'JetBrains Mono',monospace;">${usdtAmount} USDT</div>
+        </div>`;
+}
+
+function processDeposit(e) {
+    e.preventDefault();
+    if (!currentUser) { showToast('Please login first!'); return false; }
+
+    const amount = parseFloat(document.getElementById('depositAmount').value);
+    const proof  = document.getElementById('depositProof').value.trim();
+
+    if (!selectedPaymentMethod) { showToast('⚠️ Please select a payment method!'); return false; }
+    if (amount < 10)            { showToast('⚠️ Minimum deposit is $10!'); return false; }
+    if (!proof)                 { showToast('⚠️ Please provide your payment proof / transaction code.'); return false; }
+
+    const progressBar = document.getElementById('depositProgressBar');
+    const fill        = document.getElementById('progressFill');
+    const label       = document.getElementById('progressLabel');
+    const text        = document.getElementById('progressText');
+
+    progressBar.classList.add('show');
+    document.getElementById('depositForm').style.opacity = '0.5';
+    document.getElementById('depositForm').style.pointerEvents = 'none';
+
+    const steps = [
+        { pct: 20, msg: '🔍 Verifying transaction code...' },
+        { pct: 45, msg: '📡 Connecting to payment network...' },
+        { pct: 70, msg: '✅ Transaction confirmed...' },
+        { pct: 90, msg: '💰 Crediting your account...' },
+        { pct: 100, msg: '🎉 Deposit successful!' }
+    ];
+
+    let step = 0;
+    const interval = setInterval(() => {
+        if (step >= steps.length) {
+            clearInterval(interval);
+
+            // Credit balance
+            const bonus = (currentUser.realBalance === 0 && currentUser.totalDeposited === undefined) ? amount : 0;
+            currentUser.realBalance      = (currentUser.realBalance || 0) + amount + bonus;
+            currentUser.totalDeposited   = (currentUser.totalDeposited || 0) + amount;
+
+            // Credit referrer commission
+            if (currentUser.referredBy) {
+                const users    = JSON.parse(localStorage.getItem('cryptoproUsers') || '[]');
+                const referrer = users.find(u => u.referralCode === currentUser.referredBy || u.id === currentUser.referredBy);
+                if (referrer) {
+                    const commission = amount * 0.10;
+                    referrer.realBalance    = (referrer.realBalance || 0) + commission;
+                    referrer.totalCommission = (referrer.totalCommission || 0) + commission;
+                    const idx = users.findIndex(u => u.id === referrer.id);
+                    if (idx !== -1) users[idx] = referrer;
+                    localStorage.setItem('cryptoproUsers', JSON.stringify(users));
+                }
+            }
+
+            // Persist
+            const users = JSON.parse(localStorage.getItem('cryptoproUsers') || '[]');
+            const idx   = users.findIndex(u => u.id === currentUser.id);
+            if (idx !== -1) users[idx] = currentUser;
+            localStorage.setItem('cryptoproUsers', JSON.stringify(users));
+            localStorage.setItem('cryptoproUser', JSON.stringify(currentUser));
+
+            document.getElementById('depositForm').style.opacity = '';
+            document.getElementById('depositForm').style.pointerEvents = '';
+            progressBar.classList.remove('show');
+
+            launchConfetti();
+            const msg = bonus > 0
+                ? `🎉 DEPOSIT SUCCESSFUL!\n\n💰 Deposited: $${amount.toFixed(2)}\n🎁 Welcome Bonus: +$${bonus.toFixed(2)}\n✅ Total Credited: $${(amount + bonus).toFixed(2)}\n\nFunds are now in your account!`
+                : `✅ DEPOSIT SUCCESSFUL!\n\n💰 Amount: $${amount.toFixed(2)}\n\nFunds added to your account!`;
+            showToast(msg);
+            addNotification('💰 Deposit Confirmed', `$${amount.toFixed(2)} credited to your account`);
+            document.getElementById('depositForm').reset();
+            document.querySelectorAll('.payment-details').forEach(d => d.classList.remove('active'));
+            document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
+            selectedPaymentMethod = '';
+            if (document.getElementById('currencyConverterContainer')) document.getElementById('currencyConverterContainer').innerHTML = '';
+            return;
+        }
+
+        const s = steps[step++];
+        fill.style.width  = s.pct + '%';
+        label.textContent = s.msg;
+        text.textContent  = s.pct + '% complete';
+    }, 1200);
+
+    return false;
+}
+
+/* ─────────────────────────────────────────────
+   WITHDRAWAL
+───────────────────────────────────────────── */
+function updateWithdrawalPage() {
+    if (!currentUser) return;
+    const bal = currentUser.realBalance || 0;
+    setEl('withdrawAvailable', '$' + bal.toFixed(2));
+    setEl('maxWithdraw', '$' + bal.toFixed(2));
+}
+
+function selectWithdrawMethod(method, btn) {
+    selectedWithdrawMethod = method;
+    document.querySelectorAll('#withdrawalLayer .payment-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#withdrawalLayer .payment-details').forEach(d => d.classList.remove('active'));
+    const detail = document.getElementById('withdraw-' + method);
+    if (detail) detail.classList.add('active');
+}
+
+function processWithdrawal(e) {
+    e.preventDefault();
+    if (!currentUser) { showToast('Please login first!'); return false; }
+
+    const amount = parseFloat(document.getElementById('withdrawAmount').value);
+    const bal    = currentUser.realBalance || 0;
+
+    if (!selectedWithdrawMethod) { showToast('⚠️ Please select a withdrawal method!'); return false; }
+    if (amount < 50)             { showToast('⚠️ Minimum withdrawal is $50!'); return false; }
+    if (amount > bal)            { showToast(`⚠️ Insufficient balance!\n\nAvailable: $${bal.toFixed(2)}`); return false; }
+
+    const fee    = amount * 0.02;
+    const payout = amount - fee;
+
+    const progressBar = document.getElementById('withdrawProgressBar');
+    const fill        = document.getElementById('withdrawProgressFill');
+    const label       = document.getElementById('withdrawProgressLabel');
+    const text        = document.getElementById('withdrawProgressText');
+
+    progressBar.classList.add('show');
+
+    const steps = [
+        { pct: 25,  msg: '🔐 Verifying account security...' },
+        { pct: 55,  msg: '💸 Processing withdrawal request...' },
+        { pct: 80,  msg: '📡 Sending to payment network...' },
+        { pct: 100, msg: '✅ Withdrawal submitted!' }
+    ];
+
+    let step = 0;
+    const interval = setInterval(() => {
+        if (step >= steps.length) {
+            clearInterval(interval);
+
+            currentUser.realBalance = bal - amount;
+            const users = JSON.parse(localStorage.getItem('cryptoproUsers') || '[]');
+            const idx   = users.findIndex(u => u.id === currentUser.id);
+            if (idx !== -1) users[idx] = currentUser;
+            localStorage.setItem('cryptoproUsers', JSON.stringify(users));
+            localStorage.setItem('cryptoproUser', JSON.stringify(currentUser));
+
+            progressBar.classList.remove('show');
+            showToast(`✅ WITHDRAWAL SUBMITTED!\n\n💸 Amount: $${amount.toFixed(2)}\n💳 Fee (2%): -$${fee.toFixed(2)}\n💰 You Receive: $${payout.toFixed(2)}\n\n⏱ Processing: 5–30 minutes\n📱 You'll receive a confirmation shortly!`);
+            addNotification('💸 Withdrawal Processing', `$${payout.toFixed(2)} being sent to your account`);
+            document.getElementById('withdrawalForm').reset();
+            document.querySelectorAll('#withdrawalLayer .payment-details').forEach(d => d.classList.remove('active'));
+            document.querySelectorAll('#withdrawalLayer .payment-btn').forEach(b => b.classList.remove('active'));
+            selectedWithdrawMethod = '';
+            updateWithdrawalPage();
+            return;
+        }
+
+        const s = steps[step++];
+        fill.style.width  = s.pct + '%';
+        label.textContent = s.msg;
+        text.textContent  = s.pct + '% complete';
+    }, 1000);
+
+    return false;
+}
+
+/* ─────────────────────────────────────────────
+   TRADING
+───────────────────────────────────────────── */
+function executeTrade(e) {
+    e.preventDefault();
+    if (!currentUser) { showToast('Please login first!'); return false; }
+
+    const amount   = parseFloat(document.getElementById('tradeAmount').value);
+    const leverage = parseFloat(document.getElementById('tradeLeverage').value) || 1;
+    const tp       = parseFloat(document.getElementById('takeProfitPrice').value) || 0;
+    const sl       = parseFloat(document.getElementById('stopLossPrice').value) || 0;
+    const bal      = currentAccountMode === 'demo' ? (currentUser.demoBalance || 0) : (currentUser.realBalance || 0);
+
+    if (amount < 10)     { showToast('⚠️ Minimum trade amount is $10!'); return false; }
+    if (amount > bal)    { showToast(`⚠️ Insufficient ${currentAccountMode} balance!\n\nAvailable: $${bal.toFixed(2)}`); return false; }
+
+    const positionSize = amount * leverage;
+    const duration     = Math.floor(Math.random() * 20000 + 10000);
+    const isWin        = Math.random() < 0.62;
+    const pnlPct       = (Math.random() * 0.035 + 0.008) * (isWin ? 1 : -1);
+    const profit       = positionSize * pnlPct;
+
+    showToast(`⚡ Trade Opened!\n\n${selectedTradeType === 'buy' ? '📈 LONG' : '📉 SHORT'} ${currentTradePairLabel}\n💰 Amount: $${amount.toFixed(2)}\n⚡ Leverage: ${leverage}x\n📊 Position: $${positionSize.toFixed(2)}\n\n⏳ Closing in ~${Math.round(duration / 1000)}s...`);
+
+    document.getElementById('tradeSubmitBtn').disabled   = true;
+    document.getElementById('tradeSubmitBtn').textContent = '⏳ Trade Running...';
+
+    setTimeout(() => {
+        if (currentAccountMode === 'demo') currentUser.demoBalance = (currentUser.demoBalance || 0) + profit;
+        else                               currentUser.realBalance  = (currentUser.realBalance  || 0) + profit;
+        currentUser.totalProfit = (currentUser.totalProfit || 0) + profit;
+
+        // Save to history
+        currentUser.tradeHistory = currentUser.tradeHistory || [];
+        currentUser.tradeHistory.unshift({
+            id: 'TRD' + Date.now().toString(36).toUpperCase(),
+            pair: currentTradePairLabel, type: selectedTradeType.toUpperCase(),
+            amount, leverage, position: positionSize,
+            entryPrice: currentBTCPrice, profit, isWin,
+            date: new Date().toLocaleString(), mode: currentAccountMode
+        });
+        if (currentUser.tradeHistory.length > 100) currentUser.tradeHistory.pop();
+
+        const users = JSON.parse(localStorage.getItem('cryptoproUsers') || '[]');
+        const idx   = users.findIndex(u => u.id === currentUser.id);
+        if (idx !== -1) users[idx] = currentUser;
+        localStorage.setItem('cryptoproUsers', JSON.stringify(users));
+        localStorage.setItem('cryptoproUser', JSON.stringify(currentUser));
+
+        document.getElementById('tradeSubmitBtn').disabled   = false;
+        selectTradeType(selectedTradeType);
+
+        if (isWin) {
+            launchConfetti();
+            showToast(`🎉 TRADE WON!\n\n${selectedTradeType === 'buy' ? '📈 LONG' : '📉 SHORT'} ${currentTradePairLabel}\n\n✅ PROFIT: +$${profit.toFixed(2)}\n💰 New Balance: $${(currentAccountMode === 'demo' ? currentUser.demoBalance : currentUser.realBalance).toFixed(2)}`);
+        } else {
+            showToast(`❌ Trade Closed at Loss\n\n${currentTradePairLabel} moved against you\n\n📉 LOSS: -$${Math.abs(profit).toFixed(2)}\n💰 New Balance: $${(currentAccountMode === 'demo' ? currentUser.demoBalance : currentUser.realBalance).toFixed(2)}\n\n💡 Tip: Try a different strategy!`, true);
+        }
+
+        addNotification(`${isWin ? '🎉' : '📉'} Trade Closed`, `${currentTradePairLabel} ${isWin ? '+' : ''}$${profit.toFixed(2)}`);
+        if (currentLayer === 'dashboardLayer') updateDashboard();
+    }, duration);
+
+    document.getElementById('tradeForm').reset();
+    updatePositionSize();
+    return false;
+}
+
+/* ─────────────────────────────────────────────
+   TRADE HISTORY
+───────────────────────────────────────────── */
+function generateTradeHistory() {
+    const container = document.getElementById('tradeHistoryContainer');
+    const statsGrid = document.getElementById('historyStatsGrid');
+    if (!container || !currentUser) return;
+
+    const history = currentUser.tradeHistory || [];
+
+    if (history.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-secondary);"><div style="font-size:48px;margin-bottom:12px;">📊</div><div style="font-size:16px;font-weight:600;">No trades yet</div><div style="font-size:13px;margin-top:6px;">Your trade history will appear here</div></div>`;
+    } else {
+        container.innerHTML = history.map(t => `
+            <div class="history-item">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:38px;height:38px;border-radius:10px;background:${t.isWin ? 'var(--accent-green-dim)' : 'var(--accent-red-dim)'};display:flex;align-items:center;justify-content:center;font-size:18px;">${t.isWin ? '✅' : '❌'}</div>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;">${t.pair} — ${t.type}</div>
+                            <div style="font-size:11px;color:var(--text-secondary);">${t.date} · ${t.mode.toUpperCase()}</div>
+                        </div>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:16px;font-weight:900;color:${t.profit >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};font-family:'JetBrains Mono',monospace;">${t.profit >= 0 ? '+' : ''}$${t.profit.toFixed(2)}</div>
+                        <div style="font-size:11px;color:var(--text-secondary);">${t.leverage}x leverage</div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                    <div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;text-align:center;">
+                        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;">Amount</div>
+                        <div style="font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;">$${t.amount.toFixed(2)}</div>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;text-align:center;">
+                        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;">Position</div>
+                        <div style="font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;">$${t.position.toFixed(2)}</div>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.3);padding:8px;border-radius:6px;text-align:center;">
+                        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;">Entry</div>
+                        <div style="font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;">$${t.entryPrice.toFixed(0)}</div>
+                    </div>
+                </div>
+            </div>`).join('');
+    }
+
+    const wins     = history.filter(t => t.isWin).length;
+    const losses   = history.length - wins;
+    const totalPnl = history.reduce((s, t) => s + t.profit, 0);
+    const winRate  = history.length > 0 ? ((wins / history.length) * 100).toFixed(1) : '0.0';
+
+    if (statsGrid) {
+        statsGrid.innerHTML = [
+            { icon: '📊', value: history.length, label: 'Total Trades' },
+            { icon: '✅', value: wins, label: 'Winning Trades' },
+            { icon: '❌', value: losses, label: 'Losing Trades' },
+            { icon: '🎯', value: winRate + '%', label: 'Win Rate' },
+            { icon: '💰', value: (totalPnl >= 0 ? '+$' : '-$') + Math.abs(totalPnl).toFixed(2), label: 'Total P&L' },
+            { icon: '⚡', value: history.length > 0 ? '$' + (history.reduce((s,t)=>s+t.amount,0)/history.length).toFixed(2) : '$0', label: 'Avg Trade' }
+        ].map(s => `<div class="stat-card"><div class="stat-icon">${s.icon}</div><div class="stat-value" style="font-size:22px;">${s.value}</div><div class="stat-label">${s.label}</div></div>`).join('');
+    }
+}
+
+/* ─────────────────────────────────────────────
+   REFERRAL
+───────────────────────────────────────────── */
+function updateReferralPage() {
+    if (!currentUser) return;
+    const baseUrl = window.location.origin + window.location.pathname;
+    const link    = `${baseUrl}?ref=${currentUser.referralCode || currentUser.id}`;
+    setEl('referralLink', link);
+
+    const refs  = currentUser.referrals || [];
+    const comm  = currentUser.totalCommission || 0;
+    const actv  = refs.length;
+    const shares = currentUser.shareCount || 0;
+    const shareEarnings = currentUser.shareEarnings || 0;
+
+    setEl('totalReferrals', refs.length);
+    setEl('totalCommission', '$' + comm.toFixed(2));
+    setEl('activeReferrals', actv);
+    setEl('totalShares', shares);
+    setEl('shareCountDisplay', shares);
+    setEl('shareEarningsDisplay', '$' + shareEarnings.toFixed(2));
+}
+
+function copyReferralLink() {
+    if (!currentUser) return;
+    const baseUrl = window.location.origin + window.location.pathname;
+    const link    = `${baseUrl}?ref=${currentUser.referralCode || currentUser.id}`;
+    copyToClipboard(link);
+    showToast('📋 Referral link copied!\n\nShare it to earn 10% commission on all deposits!');
+}
+
+function recordShare(platform) {
+    if (!currentUser) return;
+    currentUser.shareCount    = (currentUser.shareCount || 0) + 1;
+    currentUser.shareEarnings = (currentUser.shareEarnings || 0) + 5;
+    currentUser.realBalance   = (currentUser.realBalance || 0) + 5;
+
+    const users = JSON.parse(localStorage.getItem('cryptoproUsers') || '[]');
+    const idx   = users.findIndex(u => u.id === currentUser.id);
+    if (idx !== -1) users[idx] = currentUser;
+    localStorage.setItem('cryptoproUsers', JSON.stringify(users));
+    localStorage.setItem('cryptoproUser', JSON.stringify(currentUser));
+
+    launchConfetti();
+    updateReferralPage();
+    showToast(`🎉 +$5 Share Bonus!\n\nThanks for sharing on ${platform}!\n💰 $5 credited to your real balance.\n\nKeep sharing to earn more!`);
+    addNotification('🎁 Share Bonus!', `+$5 credited for sharing on ${platform}`);
+}
+
+function shareViaWhatsApp() {
+    if (!currentUser) { showToast('Please login first!'); return; }
+    const baseUrl = window.location.origin + window.location.pathname;
+    const link    = `${baseUrl}?ref=${currentUser.referralCode || currentUser.id}`;
+    const msg     = encodeURIComponent(`🚀 I'm making real money on CryptoPro — the #1 AI crypto trading platform!\n\n💰 Get $25 FREE bonus when you sign up!\n📈 AI bots trade 24/7 automatically\n💸 Withdraw anytime, fast payouts\n\n👉 Join me here: ${link}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    setTimeout(() => recordShare('WhatsApp'), 1000);
+}
+
+function shareViaTelegram() {
+    if (!currentUser) { showToast('Please login first!'); return; }
+    const baseUrl = window.location.origin + window.location.pathname;
+    const link    = `${baseUrl}?ref=${currentUser.referralCode || currentUser.id}`;
+    const msg     = encodeURIComponent(`🚀 CryptoPro — AI Trading Platform\n\n💰 Get $25 FREE signup bonus!\n📈 AI bots trade 24/7\n💸 Fast withdrawals\n\n👉 ${link}`);
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${msg}`, '_blank');
+    setTimeout(() => recordShare('Telegram'), 1000);
+}
+
+function shareViaFacebook() {
+    if (!currentUser) { showToast('Please login first!'); return; }
+    const baseUrl = window.location.origin + window.location.pathname;
+    const link    = `${baseUrl}?ref=${currentUser.referralCode || currentUser.id}`;
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`, '_blank');
+    setTimeout(() => recordShare('Facebook'), 1000);
+}
+
+function shareViaTwitter() {
+    if (!currentUser) { showToast('Please login first!'); return; }
+    const baseUrl = window.location.origin + window.location.pathname;
+    const link    = `${baseUrl}?ref=${currentUser.referralCode || currentUser.id}`;
+    const msg     = encodeURIComponent(`🚀 Making daily profits with @CryptoPro AI trading!\n\n💰 Get $25 FREE bonus 👉 ${link}`);
+    window.open(`https://twitter.com/intent/tweet?text=${msg}`, '_blank');
+    setTimeout(() => recordShare('Twitter'), 1000);
+}
+
+/* ─────────────────────────────────────────────
+   PROFILE
+───────────────────────────────────────────── */
+function populateProfileForm() {
+    if (!currentUser) return;
+    const f = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    f('profileName', currentUser.name);
+    f('profileEmail', currentUser.email);
+    f('profilePhone', currentUser.phone);
+    setEl('accountId', currentUser.id || '—');
+    setEl('memberSince', currentUser.memberSince || '—');
+}
+
+function updateProfile(e) {
+    e.preventDefault();
+    if (!currentUser) return false;
+
+    const newName     = document.getElementById('profileName').value.trim();
+    const newEmail    = document.getElementById('profileEmail').value.trim();
+    const newPhone    = document.getElementById('profilePhone').value.trim();
+    const curPass     = document.getElementById('profileCurrentPassword').value;
+    const newPass     = document.getElementById('profileNewPassword').value;
+
+    if (curPass && curPass !== currentUser.password) {
+        showToast('❌ Current password is incorrect!', true);
+        return false;
+    }
+
+    currentUser.name  = newName;
+    currentUser.email = newEmail;
+    currentUser.phone = newPhone;
+    if (newPass) currentUser.password = newPass;
+
+    const users = JSON.parse(localStorage.getItem('cryptoproUsers') || '[]');
+    const idx   = users.findIndex(u => u.id === currentUser.id);
+    if (idx !== -1) users[idx] = currentUser;
+    localStorage.setItem('cryptoproUsers', JSON.stringify(users));
+    localStorage.setItem('cryptoproUser', JSON.stringify(currentUser));
+
+    setEl('userName', newName);
+    showToast('✅ Profile updated successfully!');
+    document.getElementById('profileCurrentPassword').value = '';
+    document.getElementById('profileNewPassword').value     = '';
+    return false;
+}
+
+/* ─────────────────────────────────────────────
+   REFERRAL CODE CHECK ON LOAD
+───────────────────────────────────────────── */
+function checkReferralCode() {
+    const params = new URLSearchParams(window.location.search);
+    const ref    = params.get('ref');
+    if (!ref) return;
+
+    const banner    = document.getElementById('referralSuccessBanner');
+    const nameEl    = document.getElementById('referrerName');
+    const refInput  = document.getElementById('signupReferralCode');
+
+    const users    = JSON.parse(localStorage.getItem('cryptoproUsers') || '[]');
+    const referrer = users.find(u => u.referralCode === ref || u.id === ref);
+
+    if (banner) {
+        if (referrer && nameEl) nameEl.textContent = referrer.name + "'s friend";
+        banner.classList.add('show');
+        setTimeout(() => closeReferralBanner(), 8000);
+    }
+
+    if (refInput) refInput.value = ref;
+}
+
+function closeReferralBanner() {
+    const banner = document.getElementById('referralSuccessBanner');
+    if (banner) banner.classList.remove('show');
+}
+
+/* ─────────────────────────────────────────────
+   DETECT USER LOCATION
+───────────────────────────────────────────── */
+function detectUserLocation() {
+    // Lightweight heuristic — can be replaced with a real IP-geo API call
+    userLocation = { country: 'Kenya', currency: 'KES', rate: 130, city: 'Nairobi' };
+}
+
+/* ─────────────────────────────────────────────
+   NOTIFICATIONS
+───────────────────────────────────────────── */
+function renderNotifications() {
+    const list     = document.getElementById('notifList');
+    const countEl  = document.getElementById('notifCount');
+    if (!list) return;
+
+    const unread = notifications.filter(n => n.unread).length;
+    if (countEl) { countEl.textContent = unread; countEl.style.display = unread > 0 ? 'flex' : 'none'; }
+
+    list.innerHTML = notifications.length === 0
+        ? `<div style="padding:20px;text-align:center;color:var(--text-secondary);font-size:13px;">No notifications</div>`
+        : notifications.map((n, i) => `
+            <div class="notif-item ${n.unread ? 'unread' : ''}" onclick="markNotifRead(${i})" style="${n.unread ? 'border-left:3px solid var(--accent-green);' : ''}">
+                <div class="notif-item-title">${n.title}</div>
+                <div class="notif-item-desc">${n.desc}</div>
+                <div class="notif-item-time">${n.time}</div>
+            </div>`).join('');
+}
+
+function addNotification(title, desc) {
+    notifications.unshift({ title, desc, time: 'Just now', unread: true });
+    if (notifications.length > 20) notifications.pop();
+    renderNotifications();
+}
+
+function markNotifRead(idx) {
+    if (notifications[idx]) notifications[idx].unread = false;
+    renderNotifications();
+}
+
+function clearNotifications() {
+    notifications.forEach(n => n.unread = false);
+    renderNotifications();
+    document.getElementById('notifDropdown')?.classList.remove('open');
+}
+
+function toggleNotifications() {
+    const dropdown = document.getElementById('notifDropdown');
+    if (!dropdown) return;
+    dropdown.classList.toggle('open');
+    if (dropdown.classList.contains('open')) {
+        renderNotifications();
+        document.addEventListener('click', closeNotifOnOutsideClick);
+    }
+}
+
+function closeNotifOnOutsideClick(e) {
+    const wrapper = document.getElementById('notifBellWrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+        document.getElementById('notifDropdown')?.classList.remove('open');
+        document.removeEventListener('click', closeNotifOnOutsideClick);
+    }
+}
+
+/* ─────────────────────────────────────────────
+   AI ASSISTANT (ARIA)
+───────────────────────────────────────────── */
+const ARIA_RESPONSES = {
+    'best bot':        '🤖 For beginners, I recommend **Scalper Pro** — it only needs $10 minimum and has an 87% win rate with 50+ trades/day!\n\nFor larger balances, **Arbitrage AI** has the highest returns at 91% win rate.',
+    'deposit':         '💰 Depositing is easy!\n\n1️⃣ Go to Deposit page\n2️⃣ Enter your amount\n3️⃣ Choose a payment method:\n   • 📱 M-Pesa: +254759401893\n   • 🏪 Till: 7500448\n   • 🏦 Equity Bank\n   • 🪙 USDT TRC-20\n4️⃣ Submit your proof code\n\nFunds credited within 5 minutes! 🚀',
+    'btc':             `📈 BTC is currently at $${Math.floor(currentBTCPrice).toLocaleString()}.\n\nShort-term indicators suggest moderate bullish momentum. Key support at $95,000 and resistance at $102,000.\n\n⚠️ This is not financial advice. Always trade responsibly.`,
+    'withdraw':        '💸 Withdrawals are fast and simple!\n\n• Minimum: $50\n• Fee: 2%\n• Processing: 5–30 minutes\n• Methods: M-Pesa, Bank, USDT\n\nGo to Withdraw from your dashboard to get started!',
+    'referral':        '🎁 Our referral program is amazing!\n\n✅ Share your unique link\n💰 Earn 10% on every deposit your friends make\n🔁 Lifetime commissions — forever!\n🎉 BONUS: Earn $5 extra for each share on social media!\n\nCheck the Referrals page for your link!',
+    'hello':           '👋 Hey there! How can I help you today?\n\nI can help with:\n• 📊 Market insights\n• 💰 Deposit guidance\n• 🤖 Bot recommendations\n• 💸 Withdrawal help\n• 🎁 Referral info',
+    'default':         '🤔 Great question! For personalised help, please contact our support team via WhatsApp.\n\n📱 Support: wa.me/254759401893\n\nOr try one of the quick options below!'
+};
+
+function getAriaResponse(msg) {
+    const m = msg.toLowerCase();
+    if (m.includes('bot') || m.includes('beginner'))  return ARIA_RESPONSES['best bot'];
+    if (m.includes('deposit') || m.includes('fund'))  return ARIA_RESPONSES['deposit'];
+    if (m.includes('btc') || m.includes('bitcoin') || m.includes('price') || m.includes('predict')) return ARIA_RESPONSES['btc'];
+    if (m.includes('withdraw') || m.includes('cash')) return ARIA_RESPONSES['withdraw'];
+    if (m.includes('referral') || m.includes('refer') || m.includes('commission')) return ARIA_RESPONSES['referral'];
+    if (m.includes('hello') || m.includes('hi') || m.includes('hey')) return ARIA_RESPONSES['hello'];
+    return ARIA_RESPONSES['default'];
+}
+
+function toggleAIChat() {
+    const panel = document.getElementById('aiChatPanel');
+    if (panel) panel.classList.toggle('open');
+}
+
+function sendAIMessage() {
+    const input   = document.getElementById('aiInput');
+    const msgs    = document.getElementById('aiMessages');
+    if (!input || !msgs || !input.value.trim()) return;
+
+    const userMsg = input.value.trim();
+    input.value   = '';
+
+    msgs.innerHTML += `<div class="ai-msg user">${userMsg}</div>`;
+
+    const typing = document.createElement('div');
+    typing.className = 'ai-typing';
+    typing.innerHTML = '<span></span><span></span><span></span>';
+    msgs.appendChild(typing);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    setTimeout(() => {
+        typing.remove();
+        const reply = getAriaResponse(userMsg);
+        msgs.innerHTML += `<div class="ai-msg bot">${reply.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</div>`;
+        msgs.scrollTop = msgs.scrollHeight;
+    }, 1200 + Math.random() * 600);
+}
+
+function sendAIQuickReply(msg) {
+    const input = document.getElementById('aiInput');
+    if (input) { input.value = msg; sendAIMessage(); }
+}
+
+/* ─────────────────────────────────────────────
+   UTILITIES
+───────────────────────────────────────────── */
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 Copied to clipboard!');
+    }).catch(() => {
+        // Fallback for older browsers / non-HTTPS
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('📋 Copied!');
+    });
+}
+
+function showToast(msg, isError = false) {
+    const toast = document.getElementById('toastNotification');
+    if (!toast) return;
+    toast.textContent = msg;
+    toast.className   = 'toast-notification show' + (isError ? ' error' : '');
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => { toast.classList.remove('show'); }, 5000);
+}
+
+function launchConfetti() {
+    const colors = ['#0ECB81','#00B8FF','#FCD535','#A855F7','#F6465D','#fff'];
+    for (let i = 0; i < 80; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.cssText = `
+            left:${Math.random()*100}vw;
+            top:-10px;
+            width:${Math.random()*10+4}px;
+            height:${Math.random()*10+4}px;
+            background:${colors[Math.floor(Math.random()*colors.length)]};
+            animation:confettiFall ${Math.random()*2+2}s ease-out ${Math.random()*1}s forwards;
+        `;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 4000);
+    }
+}
+
+/* ─────────────────────────────────────────────
+   RESTORE SESSION ON LOAD
+───────────────────────────────────────────── */
+(function restoreSession() {
+    const stored = localStorage.getItem('cryptoproUser');
+    if (stored) {
+        try {
+            currentUser = JSON.parse(stored);
+            showLayer('dashboardLayer');
+        } catch (e) {
+            localStorage.removeItem('cryptoproUser');
+        }
+    }
+})();
+</script>
+</body>
+</html>
